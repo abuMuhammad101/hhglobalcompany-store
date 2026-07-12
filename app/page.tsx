@@ -1,8 +1,11 @@
 import Link from "next/link";
-import { catalog } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
 import ProductCard from "@/components/ProductCard";
 
-export default function HomePage() {
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const catalog = await getCatalog();
   const garments = catalog.find((c) => c.slug === "garments")!;
   const leather = catalog.find((c) => c.slug === "leather")!;
 
@@ -98,9 +101,9 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-[17px] font-medium mb-3">{p.type}</h3>
                 <ul className="flex flex-col gap-2">
-                  {(p.variants.length ? p.variants : ["Mild"]).map((v) => (
-                    <li key={v} className="text-[13.5px] text-on-dark-muted pl-4 relative before:content-['•'] before:absolute before:left-0">
-                      {v}
+                  {(p.variants.length ? p.variants : [{ name: "Mild" }]).map((v) => (
+                    <li key={v.name} className="text-[13.5px] text-on-dark-muted pl-4 relative before:content-['•'] before:absolute before:left-0">
+                      {v.name}
                     </li>
                   ))}
                 </ul>

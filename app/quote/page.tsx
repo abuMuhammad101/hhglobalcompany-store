@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { catalog } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
 import QuoteForm from "@/components/QuoteForm";
 
 export const metadata: Metadata = {
@@ -11,9 +11,10 @@ export const metadata: Metadata = {
 export default async function QuotePage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; variant?: string }>;
 }) {
-  const { type } = await searchParams;
+  const { type, variant } = await searchParams;
+  const catalog = await getCatalog();
 
   let presetCategory: string | undefined;
   let presetProductType: string | undefined;
@@ -45,7 +46,12 @@ export default async function QuotePage({
           </p>
         </div>
 
-        <QuoteForm presetCategory={presetCategory} presetProductType={presetProductType} />
+        <QuoteForm
+          catalog={catalog}
+          presetCategory={presetCategory}
+          presetProductType={presetProductType}
+          presetVariant={variant}
+        />
       </div>
     </main>
   );

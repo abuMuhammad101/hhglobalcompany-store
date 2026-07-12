@@ -2,18 +2,20 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { catalog } from "@/lib/catalog";
+import type { Category } from "@/lib/types";
 
 type Props = {
+  catalog: Category[];
   presetCategory?: string;
   presetProductType?: string;
+  presetVariant?: string;
 };
 
-export default function QuoteForm({ presetCategory, presetProductType }: Props) {
+export default function QuoteForm({ catalog, presetCategory, presetProductType, presetVariant }: Props) {
   const router = useRouter();
   const [category, setCategory] = useState(presetCategory || "");
   const [productType, setProductType] = useState(presetProductType || "");
-  const [variant, setVariant] = useState("");
+  const [variant, setVariant] = useState(presetVariant || "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -108,7 +110,7 @@ export default function QuoteForm({ presetCategory, presetProductType }: Props) 
             <select className={inputClass} value={variant} onChange={(e) => setVariant(e.target.value)}>
               <option value="">Select style / finish</option>
               {variants.map((v) => (
-                <option key={v} value={v}>{v}</option>
+                <option key={v.id ?? v.name} value={v.name}>{v.name}</option>
               ))}
             </select>
           </Field>

@@ -3,14 +3,17 @@ import Link from "next/link";
 import { getCategory } from "@/lib/catalog";
 import ProductCard from "@/components/ProductCard";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Garments — T-Shirts, Sweatshirts, Sweatpants & Hoodies",
   description:
     "Wholesale garments manufactured to your quantity and fabric spec: T-shirts, sweatshirts, sweatpants and hoodies.",
 };
 
-export default function GarmentsPage() {
-  const category = getCategory("garments")!;
+export default async function GarmentsPage() {
+  const category = await getCategory("garments");
+  if (!category) return null;
 
   return (
     <main className="py-16">

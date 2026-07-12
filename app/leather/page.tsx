@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCategory } from "@/lib/catalog";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Leather Products — Wallets, Clutches, Card Holders & Belts",
   description:
     "Full-grain leather goods manufactured to order: long wallets, ladies' clutches, card holders, men's wallets and belts, in plain, mild and plated finishes.",
 };
 
-export default function LeatherPage() {
-  const category = getCategory("leather")!;
+export default async function LeatherPage() {
+  const category = await getCategory("leather");
+  if (!category) return null;
 
   return (
     <main className="py-16 bg-panel-dark text-on-dark min-h-screen">
@@ -33,8 +36,8 @@ export default function LeatherPage() {
                 <h3 className="text-[17px] font-medium mb-3">{p.type}</h3>
                 <ul className="flex flex-col gap-2">
                   {p.variants.map((v) => (
-                    <li key={v} className="text-[13.5px] text-on-dark-muted pl-4 relative before:content-['•'] before:absolute before:left-0">
-                      {v}
+                    <li key={v.name} className="text-[13.5px] text-on-dark-muted pl-4 relative before:content-['•'] before:absolute before:left-0">
+                      {v.name}
                     </li>
                   ))}
                 </ul>
