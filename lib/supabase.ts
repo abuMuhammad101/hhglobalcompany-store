@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_KEY;
+const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SECRET_KEY;
 
 // Returns null if the store owner hasn't connected Supabase yet.
 // The site still works without it — quotes just arrive by email only.
