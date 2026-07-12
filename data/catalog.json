@@ -1,0 +1,92 @@
+{
+  "categories": [
+    {
+      "slug": "garments",
+      "name": "Garments",
+      "catalogueNumber": "01",
+      "description": "Everyday essentials in your choice of fabric, weight and print.",
+      "products": [
+        {
+          "slug": "classic-heavyweight-tee",
+          "name": "Classic Heavyweight Tee",
+          "type": "T-Shirt",
+          "material": "Jersey",
+          "variants": [],
+          "description": "A heavyweight cotton jersey tee built for print and embroidery work. Available in bulk with custom fabric weight and color."
+        },
+        {
+          "slug": "core-sweat-shirt",
+          "name": "Core Sweat Shirt",
+          "type": "Sweat Shirt",
+          "material": "Rib",
+          "variants": [],
+          "description": "Ribbed crewneck sweatshirt, mid-weight fleece, suited for both blank and branded bulk orders."
+        },
+        {
+          "slug": "tapered-sweat-pants",
+          "name": "Tapered Sweat Pants",
+          "type": "Sweat Pants",
+          "material": "Knit",
+          "variants": [],
+          "description": "Tapered-fit knit sweatpants with reinforced waistband, built for comfort and durability at scale."
+        },
+        {
+          "slug": "boxy-pullover-hoodie",
+          "name": "Boxy Pullover Hoodie",
+          "type": "Hoodies",
+          "material": "Fleece",
+          "variants": [],
+          "description": "Boxy-fit pullover hoodie in brushed fleece, available in a range of weights and finishes."
+        }
+      ]
+    },
+    {
+      "slug": "leather",
+      "name": "Leather Products",
+      "catalogueNumber": "02",
+      "description": "Full-grain leather goods, hand-finished with plain, mild or plated styles.",
+      "products": [
+        {
+          "slug": "long-wallet",
+          "name": "Long Wallet",
+          "type": "Long Wallets",
+          "material": "Full-grain leather",
+          "variants": ["Plain", "Mild", "Unisex Mild", "Plated"],
+          "description": "Full-length bifold wallet with multiple card slots and a bill compartment."
+        },
+        {
+          "slug": "ladies-clutch",
+          "name": "Ladies' Clutch",
+          "type": "Ladies Clutches",
+          "material": "Full-grain leather",
+          "variants": ["Small", "Regular", "Zipper"],
+          "description": "Hand-finished leather clutch, available in three carry sizes."
+        },
+        {
+          "slug": "card-holder",
+          "name": "Card Holder",
+          "type": "Card Holder",
+          "material": "Full-grain leather",
+          "variants": ["Plated", "Mild", "Plain"],
+          "description": "Slim leather card holder, available with plated hardware or plain finish."
+        },
+        {
+          "slug": "mens-wallet",
+          "name": "Men's Wallet",
+          "type": "Mens Wallet",
+          "material": "Full-grain leather",
+          "variants": ["3\" Dollarsize plain", "4\" Center Card", "Plated", "Texture", "Flap Mild"],
+          "description": "Our most requested wallet line, available in five distinct styles and finishes."
+        },
+        {
+          "slug": "mens-belt",
+          "name": "Men's Belt",
+          "type": "Mens Belt",
+          "material": "Full-grain leather",
+          "variants": ["Mild"],
+          "description": "Full-grain leather belt with a mild finish and reinforced stitching."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #FFFFFF;
+  --bg-soft: #F6F5F1;
+  --ink: #121210;
+  --ink-muted: #85837B;
+  --ink-faint: #B7B4AB;
+  --line: #E4E2DA;
+
+  --panel-dark: #0E1714;
+  --panel-line: rgba(244, 243, 238, 0.14);
+  --on-dark: #F4F3EE;
+  --on-dark-muted: #8D958E;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-panel-dark: var(--panel-dark);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-muted: var(--on-dark-muted);
+
+  --font-display: var(--font-archivo);
+  --font-mono-ui: var(--font-space-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-display), -apple-system, sans-serif;
+}
+
+.hairline-notch {
+  position: relative;
+}
+.hairline-notch::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 64px;
+  height: 3px;
+  background: var(--ink);
+}
