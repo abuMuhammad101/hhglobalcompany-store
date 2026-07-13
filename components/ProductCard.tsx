@@ -12,10 +12,14 @@ export default function ProductCard({ product, index }: { product: Product; inde
   return (
     <article>
       <div
-        className="aspect-[3/4] mb-3 flex items-center justify-center font-mono-ui text-[11px] uppercase tracking-wide text-ink-faint"
-        style={{ background: gradients[index % gradients.length] }}
+        className="aspect-[3/4] mb-3 flex items-center justify-center font-mono-ui text-[11px] uppercase tracking-wide text-ink-faint bg-cover bg-center"
+        style={
+          product.imageUrl
+            ? { backgroundImage: `url(${product.imageUrl})` }
+            : { background: gradients[index % gradients.length] }
+        }
       >
-        {product.type} photo
+        {!product.imageUrl && `${product.type} photo`}
       </div>
       <div className="flex justify-between items-baseline gap-3">
         <span className="text-[15px] font-medium">{product.name}</span>

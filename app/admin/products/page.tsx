@@ -27,7 +27,9 @@ export default async function AdminProductsPage() {
 
   const { data: categories } = await supabase
     .from("categories")
-    .select("id, name, slug, sort_order, products(id, name, slug, type, material, sort_order, product_variants(id))")
+    .select(
+      "id, name, slug, sort_order, products(id, name, slug, type, material, image_url, sort_order, product_variants(id))"
+    )
     .order("sort_order");
 
   return (
@@ -50,6 +52,7 @@ export default async function AdminProductsPage() {
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="text-left border-b border-line text-ink-muted uppercase text-xs tracking-wide bg-bg-soft">
+                    <th className="py-2.5 px-4">Photo</th>
                     <th className="py-2.5 px-4">Name</th>
                     <th className="py-2.5 px-4">Type</th>
                     <th className="py-2.5 px-4">Material</th>
@@ -61,23 +64,39 @@ export default async function AdminProductsPage() {
                   {(category.products ?? [])
                     .slice()
                     .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
-                    .map((p: { id: string; name: string; slug: string; type: string; material: string; product_variants: unknown[] }) => (
-                      <tr key={p.id} className="border-b border-line last:border-b-0">
-                        <td className="py-2.5 px-4">{p.name}</td>
-                        <td className="py-2.5 px-4 text-ink-muted">{p.type}</td>
-                        <td className="py-2.5 px-4 text-ink-muted">{p.material}</td>
-                        <td className="py-2.5 px-4 text-ink-muted">{p.product_variants?.length ?? 0}</td>
-                        <td className="py-2.5 px-4 text-right whitespace-nowrap">
-                          <Link href={`/admin/products/${p.id}/edit`} className="text-xs border-b border-ink mr-4">
-                            Edit
-                          </Link>
-                          <DeleteProductButton productId={p.id} productName={p.name} />
-                        </td>
-                      </tr>
-                    ))}
+                    .map(
+                      (p: {
+                        id: string;
+                        name: string;
+                        slug: string;
+                        type: string;
+                        material: string;
+                        image_url: string | null;
+                        product_variants: unknown[];
+                      }) => (
+                        <tr key={p.id} className="border-b border-line last:border-b-0">
+                          <td className="py-2.5 px-4">
+                            <div
+                              className="w-10 h-10 rounded bg-bg-soft border border-line bg-cover bg-center"
+                              style={p.image_url ? { backgroundImage: `url(${p.image_url})` } : undefined}
+                            />
+                          </td>
+                          <td className="py-2.5 px-4">{p.name}</td>
+                          <td className="py-2.5 px-4 text-ink-muted">{p.type}</td>
+                          <td className="py-2.5 px-4 text-ink-muted">{p.material}</td>
+                          <td className="py-2.5 px-4 text-ink-muted">{p.product_variants?.length ?? 0}</td>
+                          <td className="py-2.5 px-4 text-right whitespace-nowrap">
+                            <Link href={`/admin/products/${p.id}/edit`} className="text-xs border-b border-ink mr-4">
+                              Edit
+                            </Link>
+                            <DeleteProductButton productId={p.id} productName={p.name} />
+                          </td>
+                        </tr>
+                      )
+                    )}
                   {(!category.products || category.products.length === 0) && (
                     <tr>
-                      <td colSpan={5} className="py-6 px-4 text-ink-muted text-center">
+                      <td colSpan={6} className="py-6 px-4 text-ink-muted text-center">
                         No products in this category yet.
                       </td>
                     </tr>

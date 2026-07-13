@@ -24,26 +24,33 @@ export default async function LeatherPage() {
         <p className="text-on-dark-muted max-w-[50ch] mb-10">{category.description}</p>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-8" style={{ borderTop: "1px solid var(--panel-line)" }}>
-          {category.products.map((p) => (
-            <Link key={p.slug} href={`/product/${p.slug}`}>
-              <article>
-                <div
-                  className="aspect-[4/3] mb-4 flex items-center justify-center font-mono-ui text-[11px] uppercase tracking-wide text-on-dark-muted"
-                  style={{ background: "radial-gradient(120% 100% at 40% 10%, #2A342F 0%, #16211C 60%, #0E1714 100%)" }}
-                >
-                  {p.type} photo
-                </div>
-                <h3 className="text-[17px] font-medium mb-3">{p.type}</h3>
-                <ul className="flex flex-col gap-2">
-                  {p.variants.map((v) => (
-                    <li key={v.name} className="text-[13.5px] text-on-dark-muted pl-4 relative before:content-['•'] before:absolute before:left-0">
-                      {v.name}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            </Link>
-          ))}
+          {category.products.map((p) => {
+            const cardImageUrl = p.imageUrl ?? p.variants.find((v) => v.imageUrl)?.imageUrl ?? null;
+            return (
+              <Link key={p.slug} href={`/product/${p.slug}`}>
+                <article>
+                  <div
+                    className="aspect-[4/3] mb-4 flex items-center justify-center font-mono-ui text-[11px] uppercase tracking-wide text-on-dark-muted bg-cover bg-center"
+                    style={
+                      cardImageUrl
+                        ? { backgroundImage: `url(${cardImageUrl})` }
+                        : { background: "radial-gradient(120% 100% at 40% 10%, #2A342F 0%, #16211C 60%, #0E1714 100%)" }
+                    }
+                  >
+                    {!cardImageUrl && `${p.type} photo`}
+                  </div>
+                  <h3 className="text-[17px] font-medium mb-3">{p.type}</h3>
+                  <ul className="flex flex-col gap-2">
+                    {p.variants.map((v) => (
+                      <li key={v.name} className="text-[13.5px] text-on-dark-muted pl-4 relative before:content-['•'] before:absolute before:left-0">
+                        {v.name}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </main>

@@ -30,7 +30,7 @@ export default async function EditProductPage({
     supabase
       .from("products")
       .select(
-        "id, category_id, name, slug, type, material, description, categories(name), product_variants(id, name, image_url, sort_order)"
+        "id, category_id, name, slug, type, material, description, image_url, categories(name), product_variants(id, name, image_url, sort_order)"
       )
       .eq("id", id)
       .single(),
@@ -77,6 +77,7 @@ export default async function EditProductPage({
               productName={product.name}
               productType={product.type}
               description={product.description}
+              productImageUrl={product.image_url}
               variants={variants.map((v: { id: string; name: string; image_url: string | null }) => ({
                 id: v.id,
                 name: v.name,

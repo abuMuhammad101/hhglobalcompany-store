@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+const NAV_LINKS = [
+  { href: "/garments", label: "Garments" },
+  { href: "/leather", label: "Leather Products" },
+  { href: "/quote", label: "Request Quote" },
+];
+
 export default function Header() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [time, setTime] = useState("--:--:-- GMT+5");
 
@@ -29,16 +37,28 @@ export default function Header() {
 
         <nav className="hidden lg:block" aria-label="Primary">
           <ul className="flex gap-8 items-center">
-            <li><Link href="/garments" className="text-sm hover:text-ink-muted">Garments</Link></li>
-            <li><Link href="/leather" className="text-sm hover:text-ink-muted">Leather Products</Link></li>
-            <li><Link href="/quote" className="text-sm border-b-[1.5px] border-ink pb-[3px]">Request Quote</Link></li>
+            {NAV_LINKS.map((link) => {
+              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`text-sm pb-[3px] ${
+                      active
+                        ? "border-b-[1.5px] border-ink"
+                        : "border-b-[1.5px] border-transparent hover:text-ink-muted"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
         <div className="hidden lg:flex items-center gap-6">
-          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted">
-            Status: In Production
-          </span>
           <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted">{time}</span>
           <Link href="/quote" className="font-mono-ui text-[11px] uppercase tracking-wider border-b border-ink pb-[2px]">
             Enquire
@@ -61,9 +81,20 @@ export default function Header() {
 
       {menuOpen && (
         <div className="lg:hidden border-t border-line px-6 py-5">
-          <Link href="/garments" className="block py-3 border-b border-line font-medium" onClick={() => setMenuOpen(false)}>Garments</Link>
-          <Link href="/leather" className="block py-3 border-b border-line font-medium" onClick={() => setMenuOpen(false)}>Leather Products</Link>
-          <Link href="/quote" className="block py-3 border-b border-line font-medium" onClick={() => setMenuOpen(false)}>Request Quote</Link>
+          {NAV_LINKS.map((link) => {
+            const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={`block py-3 border-b border-line font-medium ${active ? "text-ink" : "text-ink-muted"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <Link href="/quote" className="mt-5 inline-flex items-center justify-center w-full h-[52px] rounded-full bg-ink text-on-dark font-medium">
             Enquire
           </Link>

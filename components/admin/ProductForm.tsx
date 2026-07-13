@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import ImageUploader from "./ImageUploader";
 
 type CategoryOption = { id: string; name: string };
 
@@ -13,6 +15,7 @@ type InitialProduct = {
   type: string;
   material: string;
   description: string;
+  image_url: string | null;
 };
 
 type Props = {
@@ -33,6 +36,7 @@ export default function ProductForm({ categories, initial }: Props) {
   const router = useRouter();
   const isEdit = Boolean(initial);
 
+  const [imageUrl, setImageUrl] = useState<string | null>(initial?.image_url ?? null);
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(isEdit);
@@ -48,7 +52,7 @@ export default function ProductForm({ categories, initial }: Props) {
     setSaving(true);
     setError("");
 
-    const payload = { categoryId, name, slug, type, material, description };
+    const payload = { categoryId, name, slug, type, material, description, imageUrl };
 
     try {
       const res = await fetch(isEdit ? `/api/admin/products/${initial!.id}` : "/api/admin/products", {
@@ -73,78 +77,114 @@ export default function ProductForm({ categories, initial }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Field label="Category" required>
-        <select
-          required
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className={inputClass}
-        >
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-      </Field>
+    <form onSubmit={handleSubmit} className="space-y-10">
+      <Section
+        title="Photo"
+        hint="Shown on the shop pages and this product's page. If this product has style/finish options below, each one can have its own photo too — this one is the fallback."
+      >
+        <ImageUploader value={imageUrl} onChange={setImageUrl} />
+      </Section>
 
-      <Field label="Product Name" required>
-        <input
-          required
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            if (!slugTouched) setSlug(slugify(e.target.value));
-          }}
-          className={inputClass}
-          placeholder="e.g. Classic Heavyweight Tee"
-        />
-      </Field>
+      <Section title="Basic Details">
+        <div className="space-y-6">
+          <Field label="Category" required>
+            <select
+              required
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className={inputClass}
+            >
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </Field>
 
-      <Field label="URL Slug" required hint="Used in the product's web address — lowercase, hyphens only">
-        <input
-          required
-          value={slug}
-          onChange={(e) => {
-            setSlug(e.target.value);
-            setSlugTouched(true);
-          }}
-          className={inputClass}
-          placeholder="e.g. classic-heavyweight-tee"
-        />
-      </Field>
+          <Field label="Product Name" required>
+            <input
+              required
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (!slugTouched) setSlug(slugify(e.target.value));
+              }}
+              className={inputClass}
+              placeholder="e.g. Classic Heavyweight Tee"
+            />
+          </Field>
 
-      <Field label="Type" required hint="Shown as the product's category tag, e.g. 'T-Shirt' or 'Mens Wallet'">
-        <input required value={type} onChange={(e) => setType(e.target.value)} className={inputClass} />
-      </Field>
+          <Field label="URL Slug" required hint="Used in the product's web address — lowercase, hyphens only">
+            <input
+              required
+              value={slug}
+              onChange={(e) => {
+                setSlug(e.target.value);
+                setSlugTouched(true);
+              }}
+              className={inputClass}
+              placeholder="e.g. classic-heavyweight-tee"
+            />
+          </Field>
 
-      <Field label="Material">
-        <input value={material} onChange={(e) => setMaterial(e.target.value)} className={inputClass} />
-      </Field>
+          <Field label="Type" required hint="Shown as the product's category tag, e.g. 'T-Shirt' or 'Mens Wallet'">
+            <input required value={type} onChange={(e) => setType(e.target.value)} className={inputClass} />
+          </Field>
 
-      <Field label="Description">
+          <Field label="Material">
+            <input value={material} onChange={(e) => setMaterial(e.target.value)} className={inputClass} />
+          </Field>
+        </div>
+      </Section>
+
+      <Section title="Description">
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
           className={inputClass}
         />
-      </Field>
+      </Section>
 
       {error && <p className="text-sm text-red-700">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-ink text-on-dark text-sm font-medium disabled:opacity-60"
-      >
-        {saving ? "Saving..." : isEdit ? "Save Changes" : "Create Product"}
-      </button>
+      <div className="flex items-center gap-5">
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-ink text-on-dark text-sm font-medium disabled:opacity-60"
+        >
+          {saving ? "Saving..." : isEdit ? "Save Changes" : "Create Product"}
+        </button>
+        <Link href="/admin/products" className="text-sm text-ink-muted hover:text-ink">
+          Cancel
+        </Link>
+      </div>
     </form>
   );
 }
 
 const inputClass =
   "w-full text-base bg-transparent border border-line rounded px-3 py-2.5 focus:border-ink focus:outline-none";
+
+function Section({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="mb-5 pb-3 border-b border-line">
+        <h2 className="text-sm font-medium uppercase tracking-wide">{title}</h2>
+        {hint && <p className="text-xs text-ink-faint mt-1.5 max-w-[52ch]">{hint}</p>}
+      </div>
+      {children}
+    </div>
+  );
+}
 
 function Field({
   label,

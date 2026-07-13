@@ -18,6 +18,7 @@ type Props = {
   productType: string;
   description: string;
   variants: Variant[];
+  productImageUrl?: string | null;
   compact?: boolean;
 };
 
@@ -35,11 +36,13 @@ export default function ProductView({
   productType,
   description,
   variants,
+  productImageUrl,
   compact = false,
 }: Props) {
   const [selected, setSelected] = useState(0);
   const hasVariants = variants.length > 0;
   const active = hasVariants ? variants[selected] : undefined;
+  const displayImageUrl = active?.imageUrl ?? productImageUrl ?? null;
 
   const quoteHref = `/quote?type=${encodeURIComponent(productType)}${
     active ? `&variant=${encodeURIComponent(active.name)}` : ""
@@ -56,12 +59,12 @@ export default function ProductView({
       <div
         className="aspect-[4/5] flex items-center justify-center font-mono-ui text-[11px] uppercase tracking-wide text-ink-faint"
         style={
-          active?.imageUrl
-            ? { backgroundImage: `url(${active.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+          displayImageUrl
+            ? { backgroundImage: `url(${displayImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
             : { background: fallbackGradients[selected % fallbackGradients.length] }
         }
       >
-        {!active?.imageUrl && `${productName}${active ? " — " + active.name : ""} photo`}
+        {!displayImageUrl && `${productName}${active ? " — " + active.name : ""} photo`}
       </div>
 
       <div>

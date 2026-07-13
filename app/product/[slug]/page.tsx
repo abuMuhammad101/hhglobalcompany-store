@@ -43,6 +43,7 @@ export default async function ProductPage({
         productType={product.type}
         description={product.description}
         variants={product.variants}
+        productImageUrl={product.imageUrl}
       />
 
       {/* Product structured data — helps LLMs and search engines cite this exact item */}

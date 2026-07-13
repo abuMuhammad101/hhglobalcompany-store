@@ -11,6 +11,7 @@ export type Product = {
   type: string;
   material: string;
   description: string;
+  imageUrl?: string | null;
   variants: Variant[];
 };
 
