@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import ImageUploader from "./ImageUploader";
 
 type Category = {
   id: string;
   name: string;
   description: string | null;
   catalogue_number: string;
+  image_url: string | null;
 };
 
 export default function CategoryEditForm({ category }: { category: Category }) {
   const [name, setName] = useState(category.name);
   const [description, setDescription] = useState(category.description ?? "");
+  const [imageUrl, setImageUrl] = useState<string | null>(category.image_url);
   const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
 
   async function handleSave(e: React.FormEvent) {
@@ -20,7 +23,7 @@ export default function CategoryEditForm({ category }: { category: Category }) {
     await fetch(`/api/admin/categories/${category.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description }),
+      body: JSON.stringify({ name, description, imageUrl }),
     });
     setSaving("saved");
     setTimeout(() => setSaving("idle"), 1500);
@@ -31,6 +34,13 @@ export default function CategoryEditForm({ category }: { category: Category }) {
       <span className="block text-xs font-mono-ui uppercase tracking-wide text-ink-muted mb-4">
         Catalogue — {category.catalogue_number}
       </span>
+
+      <label className="block text-xs font-medium uppercase tracking-wide text-ink-muted mb-2">
+        Photo
+      </label>
+      <div className="mb-5">
+        <ImageUploader value={imageUrl} onChange={setImageUrl} hint="Shown on the homepage category cards." />
+      </div>
 
       <label className="block text-xs font-medium uppercase tracking-wide text-ink-muted mb-2">
         Category Name

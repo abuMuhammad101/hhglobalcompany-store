@@ -15,6 +15,7 @@ export async function PATCH(
   const patch: Record<string, unknown> = {};
   if (typeof body.name === "string") patch.name = body.name;
   if (typeof body.description === "string") patch.description = body.description;
+  if ("imageUrl" in body) patch.image_url = body.imageUrl || null;
 
   const { error } = await supabase.from("categories").update(patch).eq("id", id);
   if (error) {

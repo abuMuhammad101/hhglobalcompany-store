@@ -36,20 +36,40 @@ export default async function HomePage() {
           <div className="grid lg:grid-cols-2 gap-4">
             <Link
               href="/garments"
-              className="relative aspect-[4/5] flex items-end p-6"
-              style={{ background: "radial-gradient(120% 90% at 30% 10%, #EDEAE2 0%, #D9D5C8 55%, #B9B3A0 100%)" }}
+              className="relative aspect-[4/5] flex items-end p-6 bg-cover bg-center"
+              style={{
+                background: garments.imageUrl
+                  ? `url(${garments.imageUrl}) center/cover`
+                  : "radial-gradient(120% 90% at 30% 10%, #EDEAE2 0%, #D9D5C8 55%, #B9B3A0 100%)",
+              }}
             >
-              <div className="text-ink">
+              {garments.imageUrl && (
+                <div
+                  className="absolute inset-0"
+                  style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 45%)" }}
+                />
+              )}
+              <div className={`relative ${garments.imageUrl ? "text-on-dark" : "text-ink"}`}>
                 <span className="block font-mono-ui text-[11px] uppercase tracking-wider opacity-75 mb-2">Category 01</span>
                 <span className="text-2xl">Garments</span>
               </div>
             </Link>
             <Link
               href="/leather"
-              className="relative aspect-[4/5] flex items-end p-6"
-              style={{ background: "radial-gradient(120% 90% at 60% 20%, #2A342F 0%, #16211C 55%, #0E1714 100%)" }}
+              className="relative aspect-[4/5] flex items-end p-6 bg-cover bg-center"
+              style={{
+                background: leather.imageUrl
+                  ? `url(${leather.imageUrl}) center/cover`
+                  : "radial-gradient(120% 90% at 60% 20%, #2A342F 0%, #16211C 55%, #0E1714 100%)",
+              }}
             >
-              <div className="text-on-dark">
+              {leather.imageUrl && (
+                <div
+                  className="absolute inset-0"
+                  style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 45%)" }}
+                />
+              )}
+              <div className="relative text-on-dark">
                 <span className="block font-mono-ui text-[11px] uppercase tracking-wider opacity-75 mb-2">Category 02</span>
                 <span className="text-2xl">Leather Products</span>
               </div>
