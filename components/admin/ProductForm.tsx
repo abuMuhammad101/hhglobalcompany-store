@@ -44,12 +44,12 @@ export default function ProductForm({ categories, initial }: Props) {
   const [type, setType] = useState(initial?.type ?? "");
   const [material, setMaterial] = useState(initial?.material ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
+    setSaving("saving");
     setError("");
 
     const payload = { categoryId, name, slug, type, material, description, imageUrl };
@@ -66,13 +66,15 @@ export default function ProductForm({ categories, initial }: Props) {
       }
       if (isEdit) {
         router.refresh();
+        setSaving("saved");
+        setTimeout(() => setSaving("idle"), 1500);
       } else {
         const body = await res.json();
         router.push(`/admin/products/${body.id}/edit`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
-      setSaving(false);
+      setSaving("idle");
     }
   }
 
@@ -150,11 +152,12 @@ export default function ProductForm({ categories, initial }: Props) {
       <div className="flex items-center gap-5">
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving === "saving"}
           className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-ink text-on-dark text-sm font-medium disabled:opacity-60"
         >
-          {saving ? "Saving..." : isEdit ? "Save Changes" : "Create Product"}
+          {saving === "saving" ? "Saving..." : isEdit ? "Save Changes" : "Create Product"}
         </button>
+        {saving === "saved" && <span className="text-xs text-ink-muted">Saved</span>}
         <Link href="/admin/products" className="text-sm text-ink-muted hover:text-ink">
           Cancel
         </Link>
