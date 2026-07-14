@@ -28,7 +28,7 @@ export default async function AdminProductsPage() {
   const { data: categories } = await supabase
     .from("categories")
     .select(
-      "id, name, slug, sort_order, products(id, name, slug, type, material, image_url, sort_order, product_variants(id))"
+      "id, name, slug, sort_order, products(id, name, slug, type, material, sort_order, product_variants(id), product_images(image_url, sort_order))"
     )
     .order("sort_order");
 
@@ -71,14 +71,18 @@ export default async function AdminProductsPage() {
                         slug: string;
                         type: string;
                         material: string;
-                        image_url: string | null;
                         product_variants: unknown[];
-                      }) => (
+                        product_images: { image_url: string; sort_order: number }[];
+                      }) => {
+                        const coverImageUrl = (p.product_images ?? [])
+                          .slice()
+                          .sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url;
+                        return (
                         <tr key={p.id} className="border-b border-line last:border-b-0">
                           <td className="py-2.5 px-4">
                             <div
                               className="w-10 h-10 rounded bg-bg-soft border border-line bg-cover bg-center"
-                              style={p.image_url ? { backgroundImage: `url(${p.image_url})` } : undefined}
+                              style={coverImageUrl ? { backgroundImage: `url(${coverImageUrl})` } : undefined}
                             />
                           </td>
                           <td className="py-2.5 px-4">{p.name}</td>
@@ -92,7 +96,8 @@ export default async function AdminProductsPage() {
                             <DeleteProductButton productId={p.id} productName={p.name} />
                           </td>
                         </tr>
-                      )
+                        );
+                      }
                     )}
                   {(!category.products || category.products.length === 0) && (
                     <tr>

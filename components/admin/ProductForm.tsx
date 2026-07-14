@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import ImageUploader from "./ImageUploader";
 
 type CategoryOption = { id: string; name: string };
 
@@ -15,7 +14,6 @@ type InitialProduct = {
   type: string;
   material: string;
   description: string;
-  image_url: string | null;
 };
 
 type Props = {
@@ -36,7 +34,6 @@ export default function ProductForm({ categories, initial }: Props) {
   const router = useRouter();
   const isEdit = Boolean(initial);
 
-  const [imageUrl, setImageUrl] = useState<string | null>(initial?.image_url ?? null);
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(isEdit);
@@ -52,7 +49,7 @@ export default function ProductForm({ categories, initial }: Props) {
     setSaving("saving");
     setError("");
 
-    const payload = { categoryId, name, slug, type, material, description, imageUrl };
+    const payload = { categoryId, name, slug, type, material, description };
 
     try {
       const res = await fetch(isEdit ? `/api/admin/products/${initial!.id}` : "/api/admin/products", {
@@ -80,13 +77,6 @@ export default function ProductForm({ categories, initial }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
-      <Section
-        title="Photo"
-        hint="Shown on the shop pages and this product's page. If this product has style/finish options below, each one can have its own photo too — this one is the fallback."
-      >
-        <ImageUploader value={imageUrl} onChange={setImageUrl} />
-      </Section>
-
       <Section title="Basic Details">
         <div className="space-y-6">
           <Field label="Category" required>

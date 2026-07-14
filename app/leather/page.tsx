@@ -25,7 +25,7 @@ export default async function LeatherPage() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-8" style={{ borderTop: "1px solid var(--panel-line)" }}>
           {category.products.map((p) => {
-            const cardImageUrl = p.imageUrl ?? p.variants.find((v) => v.imageUrl)?.imageUrl ?? null;
+            const cardImageUrl = p.images[0]?.imageUrl ?? p.variants.find((v) => v.imageUrl)?.imageUrl ?? null;
             return (
               <Link key={p.slug} href={`/product/${p.slug}`}>
                 <article>

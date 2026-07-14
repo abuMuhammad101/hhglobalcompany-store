@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getSupabase } from "@/lib/supabase";
 import ProductForm from "@/components/admin/ProductForm";
 import VariantManager from "@/components/admin/VariantManager";
+import ProductGalleryManager from "@/components/admin/ProductGalleryManager";
 import ProductView from "@/components/ProductView";
 import Breadcrumb from "@/components/admin/Breadcrumb";
 
@@ -31,7 +32,7 @@ export default async function EditProductPage({
     supabase
       .from("products")
       .select(
-        "id, category_id, name, slug, type, material, description, image_url, categories(name), product_variants(id, name, image_url, sort_order)"
+        "id, category_id, name, slug, type, material, description, categories(name), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order)"
       )
       .eq("id", id)
       .single(),
@@ -40,6 +41,10 @@ export default async function EditProductPage({
   if (!product) notFound();
 
   const variants = (product.product_variants ?? [])
+    .slice()
+    .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order);
+
+  const images = (product.product_images ?? [])
     .slice()
     .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order);
 
@@ -56,6 +61,17 @@ export default async function EditProductPage({
         <div>
           <h1 className="text-2xl mb-8">Edit Product</h1>
           <ProductForm categories={categories ?? []} initial={product} />
+
+          <div className="border-t border-line mt-10 pt-10">
+            <ProductGalleryManager
+              productId={product.id}
+              initialImages={images.map((img: { id: string; image_url: string; sort_order: number }) => ({
+                id: img.id,
+                image_url: img.image_url,
+                sort_order: img.sort_order,
+              }))}
+            />
+          </div>
 
           <div className="border-t border-line mt-10 pt-10">
             <VariantManager
@@ -81,7 +97,10 @@ export default async function EditProductPage({
               productName={product.name}
               productType={product.type}
               description={product.description}
-              productImageUrl={product.image_url}
+              images={images.map((img: { id: string; image_url: string }) => ({
+                id: img.id,
+                imageUrl: img.image_url,
+              }))}
               variants={variants.map((v: { id: string; name: string; image_url: string | null }) => ({
                 id: v.id,
                 name: v.name,

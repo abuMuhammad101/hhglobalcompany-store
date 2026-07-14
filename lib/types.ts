@@ -4,6 +4,11 @@ export type Variant = {
   imageUrl?: string | null;
 };
 
+export type ProductImage = {
+  id?: string;
+  imageUrl: string;
+};
+
 export type Product = {
   id?: string;
   slug: string;
@@ -11,7 +16,7 @@ export type Product = {
   type: string;
   material: string;
   description: string;
-  imageUrl?: string | null;
+  images: ProductImage[];
   variants: Variant[];
 };
 

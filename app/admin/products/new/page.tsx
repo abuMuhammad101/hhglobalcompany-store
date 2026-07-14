@@ -24,7 +24,11 @@ export default async function NewProductPage() {
     <main className="py-10">
       <div className="max-w-[700px] mx-auto px-6">
         <Breadcrumb items={[{ label: "Products", href: "/admin/products" }, { label: "Add Product" }]} />
-        <h1 className="text-2xl mb-8">Add Product</h1>
+        <h1 className="text-2xl mb-2">Add Product</h1>
+        <p className="text-sm text-ink-muted mb-8">
+          Fill in the details below, then save — you'll add photos and style/finish options on
+          the next screen.
+        </p>
         <ProductForm categories={categories ?? []} />
       </div>
     </main>

@@ -14,7 +14,8 @@ Password-protected (set `ADMIN_USER` / `ADMIN_PASSWORD` in your environment vari
 Three sections:
 - **Quotes** — every incoming quote request, with a status pipeline (New → Contacted →
   Quoted → Won/Lost), filterable, with per-request notes that autosave.
-- **Products** — add, edit, delete products, upload/change each product's photo, and
+- **Products** — add, edit, delete products, manage a full photo gallery per product
+  (upload, reorder, remove — first photo is the cover shown everywhere else), and
   manage its styles/finishes (each with its own photo too), with a live preview of
   exactly what customers see.
 - **Categories** — edit the Garments / Leather Products names and descriptions.
@@ -25,9 +26,15 @@ SQL Editor to create every table and pre-fill it with your current catalog).
 ### Product photos
 Run `data/schema-images.sql` once in Supabase's SQL Editor (same place you ran
 `data/schema.sql`) to enable photo uploads — it adds the photo column to products
-and creates the storage bucket that uploaded photos are kept in. After that,
-uploading a photo in `/admin/products` just works — click or drag a photo onto the
-photo box, no separate image hosting needed.
+and creates the storage bucket that uploaded photos are kept in.
+
+### Product photo galleries
+Run `data/schema-product-gallery.sql` once too (same place) — it upgrades products
+from one cover photo to a full gallery (multiple photos, reorderable), automatically
+carrying over each product's existing photo as the first gallery photo. After that,
+`/admin/products` lets you add as many photos as you want per product, and customers
+see a real gallery on the product page — thumbnails, prev/next arrows, and click to
+zoom.
 
 ## Pages (in `app/`)
 - `page.tsx` — homepage
