@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getSupabase } from "@/lib/supabase";
 import ProductForm from "@/components/admin/ProductForm";
+import Breadcrumb from "@/components/admin/Breadcrumb";
 
 export const metadata: Metadata = { title: "Admin — New Product" };
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ export default async function NewProductPage() {
   return (
     <main className="py-10">
       <div className="max-w-[700px] mx-auto px-6">
+        <Breadcrumb items={[{ label: "Products", href: "/admin/products" }, { label: "Add Product" }]} />
         <h1 className="text-2xl mb-8">Add Product</h1>
         <ProductForm categories={categories ?? []} />
       </div>

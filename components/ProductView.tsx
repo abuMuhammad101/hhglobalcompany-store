@@ -14,6 +14,7 @@ const fallbackGradients = [
 
 type Props = {
   categoryName: string;
+  categoryHref?: string;
   productName: string;
   productType: string;
   description: string;
@@ -32,6 +33,7 @@ type Props = {
  */
 export default function ProductView({
   categoryName,
+  categoryHref,
   productName,
   productType,
   description,
@@ -68,9 +70,22 @@ export default function ProductView({
       </div>
 
       <div>
-        <span className="font-mono-ui text-[11.5px] uppercase tracking-wider text-ink-muted mb-3 block">
-          {categoryName} / {productType}
-        </span>
+        {!compact && categoryHref ? (
+          <nav aria-label="Breadcrumb" className="font-mono-ui text-[11.5px] uppercase tracking-wider text-ink-muted mb-3 flex items-center gap-2">
+            <Link href={categoryHref} className="inline-flex items-center gap-1.5 hover:text-ink">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              {categoryName}
+            </Link>
+            <span>/</span>
+            <span>{productType}</span>
+          </nav>
+        ) : (
+          <span className="font-mono-ui text-[11.5px] uppercase tracking-wider text-ink-muted mb-3 block">
+            {categoryName} / {productType}
+          </span>
+        )}
         <h1 className="text-[clamp(28px,4vw,44px)] mb-4">{productName}</h1>
         <p className="text-ink-muted max-w-[50ch] mb-8">{description}</p>
 

@@ -4,6 +4,7 @@ import { getSupabase } from "@/lib/supabase";
 import ProductForm from "@/components/admin/ProductForm";
 import VariantManager from "@/components/admin/VariantManager";
 import ProductView from "@/components/ProductView";
+import Breadcrumb from "@/components/admin/Breadcrumb";
 
 export const metadata: Metadata = { title: "Admin — Edit Product" };
 export const dynamic = "force-dynamic";
@@ -48,6 +49,9 @@ export default async function EditProductPage({
 
   return (
     <main className="py-10">
+      <div className="max-w-[1200px] mx-auto px-6">
+        <Breadcrumb items={[{ label: "Products", href: "/admin/products" }, { label: product.name }]} />
+      </div>
       <div className="max-w-[1200px] mx-auto px-6 grid lg:grid-cols-2 gap-12">
         <div>
           <h1 className="text-2xl mb-8">Edit Product</h1>

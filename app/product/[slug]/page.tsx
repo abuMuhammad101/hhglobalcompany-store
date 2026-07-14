@@ -39,6 +39,7 @@ export default async function ProductPage({
     <main className="py-16">
       <ProductView
         categoryName={category.name}
+        categoryHref={`/${category.slug}`}
         productName={product.name}
         productType={product.type}
         description={product.description}
