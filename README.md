@@ -18,7 +18,10 @@ Three sections:
   (upload, reorder, remove — first photo is the cover shown everywhere else), and
   manage its styles/finishes (each with its own photo too), with a live preview of
   exactly what customers see.
-- **Categories** — edit the Garments / Leather Products names and descriptions.
+- **Categories** — edit the Garments / Leather Products names and descriptions, each with
+  its own cover photo.
+- **Media** — upload the site logo (shown in the header) and manage the photo carousel
+  that slides in the homepage hero — add as many photos as you like.
 
 Requires Supabase to be connected (see `data/schema.sql` — run it once in Supabase's
 SQL Editor to create every table and pre-fill it with your current catalog).
@@ -35,6 +38,11 @@ carrying over each product's existing photo as the first gallery photo. After th
 `/admin/products` lets you add as many photos as you want per product, and customers
 see a real gallery on the product page — thumbnails, prev/next arrows, and click to
 zoom.
+
+### Site logo & homepage hero carousel
+Run `data/schema-site-media.sql` once too (same place) — it enables the **Media** tab
+in the admin panel, where you can upload the site logo and add/remove photos for the
+homepage hero carousel.
 
 ## Pages (in `app/`)
 - `page.tsx` — homepage

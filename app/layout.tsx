@@ -3,6 +3,7 @@ import { Archivo, Space_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getSiteSettings } from "@/lib/settings";
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -36,9 +37,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const { logoUrl } = await getSiteSettings();
   return (
     <html lang="en">
       <body className={`${archivo.variable} ${spaceMono.variable} antialiased`}>
@@ -62,7 +64,7 @@ export default function RootLayout({
             }),
           }}
         />
-        <Header />
+        <Header logoUrl={logoUrl} />
         {children}
         <Footer />
       </body>

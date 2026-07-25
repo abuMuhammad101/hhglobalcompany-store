@@ -56,6 +56,11 @@ export default function ProductView({
   const hasGallery = galleryImages.length > 1;
   const displayImageUrl = galleryImages[activeIndex] ?? null;
 
+  function goTo(direction: -1 | 1) {
+    if (!hasGallery) return;
+    setActiveIndex((i) => (i + direction + galleryImages.length) % galleryImages.length);
+  }
+
   useEffect(() => {
     setActiveIndex(0);
   }, [selected]);
@@ -71,11 +76,6 @@ export default function ProductView({
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightboxOpen, galleryImages.length]);
-
-  function goTo(direction: -1 | 1) {
-    if (!hasGallery) return;
-    setActiveIndex((i) => (i + direction + galleryImages.length) % galleryImages.length);
-  }
 
   const quoteHref = `/quote?type=${encodeURIComponent(productType)}${
     active ? `&variant=${encodeURIComponent(active.name)}` : ""
@@ -141,7 +141,7 @@ export default function ProductView({
 
       <div>
         {!compact && categoryHref ? (
-          <nav aria-label="Breadcrumb" className="font-mono-ui text-[11.5px] uppercase tracking-wider text-ink-muted mb-3 flex items-center gap-2">
+          <nav aria-label="Breadcrumb" className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 flex items-center gap-2">
             <Link href={categoryHref} className="inline-flex items-center gap-1.5 hover:text-ink">
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 18l-6-6 6-6" />
@@ -152,11 +152,11 @@ export default function ProductView({
             <span>{productType}</span>
           </nav>
         ) : (
-          <span className="font-mono-ui text-[11.5px] uppercase tracking-wider text-ink-muted mb-3 block">
+          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">
             {categoryName} / {productType}
           </span>
         )}
-        <h1 className="text-[clamp(28px,4vw,44px)] mb-4">{productName}</h1>
+        <h1 className="text-[clamp(28px,4vw,44px)] font-medium tracking-tight mb-4">{productName}</h1>
         <p className="text-ink-muted max-w-[50ch] mb-8">{description}</p>
 
         {hasVariants && (

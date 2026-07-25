@@ -26,7 +26,7 @@ export default async function NewProductPage() {
         <Breadcrumb items={[{ label: "Products", href: "/admin/products" }, { label: "Add Product" }]} />
         <h1 className="text-2xl mb-2">Add Product</h1>
         <p className="text-sm text-ink-muted mb-8">
-          Fill in the details below, then save — you'll add photos and style/finish options on
+          Fill in the details below, then save — you&apos;ll add photos and style/finish options on
           the next screen.
         </p>
         <ProductForm categories={categories ?? []} />

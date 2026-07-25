@@ -34,10 +34,10 @@ export default async function QuotePage({
     <main className="py-16">
       <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-[0.8fr_1.2fr] gap-12">
         <div>
-          <span className="font-mono-ui text-[11.5px] uppercase tracking-wider text-ink-muted mb-3 block">
+          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">
             Consultation
           </span>
-          <h1 className="text-[clamp(26px,3.6vw,38px)] mb-4 max-w-[14ch]">
+          <h1 className="text-[clamp(26px,3.6vw,38px)] font-medium tracking-tight mb-4 max-w-[14ch]">
             Ready to define your requirements?
           </h1>
           <p className="text-ink-muted max-w-[42ch] text-[15px]">
