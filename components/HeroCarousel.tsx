@@ -20,7 +20,7 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   if (slides.length === 0) return null;
 
   return (
-    <div className="relative aspect-[5/4] sm:aspect-[4/5] lg:aspect-[4/5] max-h-[420px] sm:max-h-[560px] lg:max-h-[620px] w-full overflow-hidden rounded-2xl border border-line">
+    <div className="relative w-full overflow-hidden rounded-2xl border border-line aspect-[4/3] max-h-[280px] sm:aspect-[16/11] sm:max-h-[380px] lg:aspect-[16/12] lg:max-h-[440px]">
       {slides.map((s, i) => {
         const fallback = fallbackGradients[i % fallbackGradients.length];
         return (
