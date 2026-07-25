@@ -42,11 +42,11 @@ export default async function HomePage() {
       {/* ABOUT US */}
       <section className="py-20 sm:py-24 bg-bg-soft border-y border-line">
         <div className="max-w-[1320px] mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             <div>
               <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">About Us</span>
-              <h2 className="text-[clamp(28px,4vw,42px)] font-medium tracking-tight leading-[1.15] max-w-[15ch] mb-6">
-                Manufacturing built on craftsmanship, trusted for the long run.
+              <h2 className="text-[clamp(28px,4vw,42px)] font-medium tracking-tight leading-[1.15] mb-6">
+                Built on craftsmanship. Trusted for the long run.
               </h2>
               <p className="text-ink-muted text-[15px] leading-relaxed max-w-[52ch] mb-4">
                 H&amp;H Global LLC is a manufacturer, wholesaler and exporter delivering premium
@@ -64,7 +64,7 @@ export default async function HomePage() {
                 </BracketLabel>
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 auto-rows-fr gap-4 lg:self-stretch">
               <StatCard num="12+" label="Years crafting" />
               <StatCard num="1,400+" label="Orders fulfilled" />
               <StatCard num="25" label="Unit minimum" />
@@ -249,7 +249,7 @@ const processSteps = [
 
 function StatCard({ num, label }: { num: string; label: string }) {
   return (
-    <div className="border border-line rounded-xl p-6 sm:p-7 bg-bg">
+    <div className="border border-line rounded-xl p-6 sm:p-7 bg-bg flex flex-col justify-center">
       <div className="text-3xl sm:text-4xl font-medium tracking-tight">{num}</div>
       <div className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mt-2">{label}</div>
     </div>
