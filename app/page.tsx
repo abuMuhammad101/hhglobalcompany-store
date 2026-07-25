@@ -140,18 +140,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SECTION SEPARATOR */}
-      <div className="relative py-2">
-        <div className="max-w-[1320px] mx-auto px-6">
-          <div className="h-px bg-line" />
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <BracketLabel className="bg-bg text-ink-muted">
-            <span className="font-mono-ui text-[11px] uppercase tracking-wider">Catalogue — 02</span>
-          </BracketLabel>
-        </div>
-      </div>
-
       {/* CATALOGUE 02 — LEATHER PREVIEW */}
       <section id="leather" className="py-16 bg-bg-soft">
         <div className="max-w-[1320px] mx-auto px-6">
