@@ -163,32 +163,10 @@ export default async function HomePage() {
               View all leather goods
             </Link>
           </div>
-          <div className="grid sm:grid-cols-3 gap-5 pt-8 border-t border-line">
-            {leather.products.map((p) => {
-              const coverImageUrl = p.images[0]?.imageUrl ?? null;
-              return (
-                <article key={p.slug}>
-                  <div
-                    className="aspect-[4/3] mb-4 flex items-center justify-center font-mono-ui text-[11px] uppercase tracking-wide text-ink-faint bg-cover bg-center rounded-xl overflow-hidden"
-                    style={
-                      coverImageUrl
-                        ? { backgroundImage: `url(${coverImageUrl})` }
-                        : { background: "radial-gradient(120% 100% at 40% 10%, #F3E4D0 0%, #D9B98C 60%, #B98A5C 100%)" }
-                    }
-                  >
-                    {!coverImageUrl && `${p.type} photo`}
-                  </div>
-                  <h3 className="text-[17px] font-medium mb-3">{p.type}</h3>
-                  <ul className="flex flex-col gap-2">
-                    {(p.variants.length ? p.variants : [{ name: "Mild" }]).map((v) => (
-                      <li key={v.name} className="text-[13.5px] text-ink-muted pl-4 relative before:content-['•'] before:absolute before:left-0">
-                        {v.name}
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              );
-            })}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 pt-8 border-t border-line">
+            {leather.products.map((p, i) => (
+              <ProductCard key={p.slug} product={p} index={i} />
+            ))}
           </div>
         </div>
       </section>

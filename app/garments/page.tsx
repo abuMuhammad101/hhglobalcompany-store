@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getCategory } from "@/lib/catalog";
 import ProductCard from "@/components/ProductCard";
 
@@ -26,9 +25,7 @@ export default async function GarmentsPage() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 border-t border-line pt-8">
           {category.products.map((p, i) => (
-            <Link key={p.slug} href={`/product/${p.slug}`}>
-              <ProductCard product={p} index={i} />
-            </Link>
+            <ProductCard key={p.slug} product={p} index={i} />
           ))}
         </div>
       </div>
