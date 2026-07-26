@@ -30,7 +30,11 @@ export default async function AdminQuotesPage({
     );
   }
 
-  let query = supabase.from("quote_requests").select("*").order("created_at", { ascending: false });
+  let query = supabase
+    .from("quote_requests")
+    .select("*, quote_items(*)")
+    .order("created_at", { ascending: false })
+    .order("sort_order", { referencedTable: "quote_items" });
   if (status) query = query.eq("status", status);
   const { data: quotes } = await query;
 
@@ -58,8 +62,7 @@ export default async function AdminQuotesPage({
               <tr className="text-left border-b border-line text-ink-muted uppercase text-xs tracking-wide bg-bg-soft">
                 <th className="py-3 px-4">Date</th>
                 <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4">Request</th>
-                <th className="py-3 px-4">Qty</th>
+                <th className="py-3 px-4 min-w-[260px]">Request</th>
                 <th className="py-3 px-4 min-w-[220px]">Notes</th>
                 <th className="py-3 px-4">Status</th>
               </tr>
@@ -70,7 +73,7 @@ export default async function AdminQuotesPage({
               ))}
               {(!quotes || quotes.length === 0) && (
                 <tr>
-                  <td colSpan={6} className="py-10 text-ink-muted text-center">
+                  <td colSpan={5} className="py-10 text-ink-muted text-center">
                     No quote requests {status ? `with status "${status}"` : "yet"}.
                   </td>
                 </tr>

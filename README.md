@@ -13,7 +13,9 @@ is ever disconnected.
 Password-protected (set `ADMIN_USER` / `ADMIN_PASSWORD` in your environment variables).
 Three sections:
 - **Quotes** — every incoming quote request, with a status pipeline (New → Contacted →
-  Quoted → Won/Lost), filterable, with per-request notes that autosave.
+  Quoted → Won/Lost), filterable, with per-request notes that autosave. A single
+  request can include several products, each shown with its own style/finish, color
+  preference, quantity and reference photo.
 - **Products** — add, edit, delete products, manage a full photo gallery per product
   (upload, reorder, remove — first photo is the cover shown everywhere else), and
   manage its styles/finishes (each with its own photo too), with a live preview of
@@ -55,6 +57,15 @@ something. A handful of things stay fixed rather than editable, on purpose: nav 
 button text, the icons on the About page's "What We Offer" list, and the number of
 items in lists (process steps, offerings, terms sections) — keeping those fixed avoids
 ever breaking the page layout from the admin panel.
+
+### Multi-product quote form
+Run `data/schema-quote-items.sql` once too (same place) — it lets a customer request
+several products in a single quote (each with its own category, style/finish,
+preferred color, quantity, an optional reference photo, and notes), and creates the
+public storage bucket those reference photos are uploaded to. Existing quote requests
+are automatically carried over as their own first item, so nothing is lost. Quotes
+with more than one product show every item, with a thumbnail for any attached photo,
+in `/admin/quotes`.
 
 ## Pages (in `app/`)
 - `page.tsx` — homepage

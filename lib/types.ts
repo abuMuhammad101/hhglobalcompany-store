@@ -30,6 +30,18 @@ export type Category = {
   products: Product[];
 };
 
+export type QuoteItemRow = {
+  id: string;
+  category: string | null;
+  product_type: string | null;
+  variant: string | null;
+  color_preference: string | null;
+  quantity: number | null;
+  image_url: string | null;
+  item_notes: string | null;
+  sort_order: number;
+};
+
 export type QuoteRow = {
   id: number;
   created_at?: string;
@@ -44,4 +56,5 @@ export type QuoteRow = {
   details: string | null;
   status: string;
   notes: string | null;
+  quote_items?: QuoteItemRow[];
 };
