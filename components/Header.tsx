@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import Button from "@/components/Button";
 
 function navLinkClass(active: boolean) {
   return [
@@ -63,12 +64,9 @@ export default function Header({ logoUrl, brandName }: { logoUrl?: string | null
         </nav>
 
         <div className="hidden lg:block shrink-0">
-          <Link
-            href="/contact"
-            className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-ink text-on-dark text-[14px] font-medium hover:opacity-85 transition-opacity"
-          >
+          <Button href="/contact" size="md">
             Contact Us
-          </Link>
+          </Button>
         </div>
 
         <button
@@ -92,9 +90,9 @@ export default function Header({ logoUrl, brandName }: { logoUrl?: string | null
           <Link href="/leather" className="block py-3 pl-3 border-b border-line font-medium text-[15px]" onClick={() => setMenuOpen(false)}>Leather Products</Link>
           <Link href="/about" className="block py-3 border-b border-line font-medium text-[15px]" onClick={() => setMenuOpen(false)}>About</Link>
           <Link href="/quote" className="block py-3 border-b border-line font-medium text-[15px]" onClick={() => setMenuOpen(false)}>Request Quote</Link>
-          <Link href="/contact" className="mt-5 inline-flex items-center justify-center w-full h-[52px] rounded-full bg-ink text-on-dark font-medium">
+          <Button href="/contact" size="lg" className="mt-5 w-full">
             Contact Us
-          </Link>
+          </Button>
         </div>
       )}
     </header>

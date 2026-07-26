@@ -18,10 +18,17 @@ assumed.
 Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio site).
 - Fonts: Archivo (display/UI), Space Mono (technical readouts — eyebrow labels,
   mono-caps tags)
-- Monochrome palette (warm white / near-black ink). The Leather catalogue section
-  used to be a dark panel — it's now light like the rest of the site, since having
-  two catalogue sections in different themes read as inconsistent. Category/product
-  photo fallback gradients differ by tone (cool neutrals for garments, warm
+- Monochrome palette (warm white / near-black ink) **plus one deliberate accent
+  color**: warm brass/gold (`--accent` / `--accent-soft` in `app/globals.css`),
+  added during the storefront design audit. Used sparingly — only for the single
+  primary conversion action per page (quote form submit, product page "Request
+  Quote", homepage/about "Start Your Quote" CTAs) and the arrow badge that
+  accompanies it. Everything else (nav, secondary actions, toggles) stays
+  monochrome — don't reach for the accent color casually, it only reads as an
+  accent because it's rare. The Leather catalogue section used to be a dark
+  panel — it's now light like the rest of the site, since having two catalogue
+  sections in different themes read as inconsistent. Category/product photo
+  fallback gradients differ by tone (cool neutrals for garments, warm
   tan/leather tones for leather) so there's still visual variety without a theme
   switch.
 - Signature elements: asterisk mark above the homepage hero headline, pill buttons
@@ -37,10 +44,17 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
 - Design tokens live in `app/globals.css` as CSS variables — always reuse these,
   never introduce ad hoc colors
 - `components/ProductCard.tsx` is the **one** card component for every product
-  grid (homepage previews, `/garments`, `/leather`) — don't build a one-off card
-  for a new listing; extend this one. It owns its own `<Link>`, a shared fallback
-  gradient palette, a style-count badge, and a hover state (image zoom + circular
-  arrow badge).
+  grid (homepage previews, `/garments`, `/leather`, and product-page "related
+  products") — don't build a one-off card for a new listing; extend this one.
+  It owns its own `<Link>`, a shared fallback gradient palette, a style-count
+  badge, and a hover state (image zoom + circular arrow badge).
+- `components/Button.tsx` is the **one** button component for the public
+  storefront (`primary`/`accent`/`secondary`/`outline`/`ghost` variants,
+  `sm`/`md`/`lg` sizes; renders a `<Link>` when given `href`, otherwise a real
+  `<button>`) — reuse it for any new CTA rather than hand-typing pill classes.
+  `components/ArrowBadge.tsx` is the matching circular arrow-icon badge
+  (`ink`/`accent` tone). Admin panel buttons (`components/admin/**`) are a
+  separate, intentionally untouched surface — not part of this system.
 
 ## Tech stack
 - Next.js 16 (App Router), Tailwind CSS v4
@@ -70,9 +84,13 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
 - `lib/supabase.ts` — Supabase client, reads `SUPABASE_URL` +
   `SUPABASE_SERVICE_KEY` (falls back to `SUPABASE_SECRET_KEY`, which is what
   Vercel's official Supabase integration names it)
-- `components/ProductView.tsx` — product detail view: style/finish swatches, a
+- `components/ProductView.tsx` — product detail view: framed main photo
+  (`rounded-2xl border border-line`, matching `ProductCard`/`HeroCarousel`), a
   real photo gallery (thumbnails, prev/next arrows, click-to-zoom lightbox),
-  breadcrumb. Reused (in `compact` mode) for the admin live preview.
+  breadcrumb, and a Details card (category/type/style/material). Reused (in
+  `compact` mode) for the admin live preview. The product page itself
+  (`app/product/[slug]/page.tsx`) additionally renders a "More from
+  [Category]" related-products section below it, using `ProductCard`.
 - `components/QuoteForm.tsx` — the quote request form. Supports **multiple
   products per submission** (add/remove line items), each with its own
   Category → Product Type → Style/Finish cascade (from `catalog`), a free-text
@@ -131,6 +149,12 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   site-wide Content CMS covering all page copy
 - ✅ Quote form rebuilt: multiple products per request, reference photo upload,
   color preference, phone field
+- ✅ Storefront design audit shipped: one warm-brass accent color introduced
+  (used sparingly on primary CTAs), a shared `Button`/`ArrowBadge` component
+  system replacing ~20+ duplicated pill buttons, a redesigned quote form (card
+  panel, numbered items, restyled inputs, upload icon/preview), and a
+  redesigned product detail page (fixed the unframed/"bleeding" main photo,
+  added a Details card and related-products section)
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a

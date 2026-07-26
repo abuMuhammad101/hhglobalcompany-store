@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getQuoteContent } from "@/lib/content";
+import Button from "@/components/Button";
 
 export const revalidate = 60;
 
@@ -22,9 +22,9 @@ export default async function ThankYouPage() {
         <p className="text-ink-muted max-w-[46ch] mx-auto mb-10">
           {content.thankYou.body}
         </p>
-        <Link href="/" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium">
+        <Button href="/" size="lg">
           Back to Home
-        </Link>
+        </Button>
       </div>
     </main>
   );

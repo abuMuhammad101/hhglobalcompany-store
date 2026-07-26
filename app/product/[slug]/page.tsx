@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllProducts, getProduct } from "@/lib/catalog";
 import ProductView from "@/components/ProductView";
+import ProductCard from "@/components/ProductCard";
 
 export const revalidate = 60;
 
@@ -34,6 +35,7 @@ export default async function ProductPage({
   if (!found) notFound();
 
   const { category, product } = found;
+  const related = category.products.filter((p) => p.slug !== product.slug).slice(0, 4);
 
   return (
     <main className="py-16">
@@ -43,9 +45,23 @@ export default async function ProductPage({
         productName={product.name}
         productType={product.type}
         description={product.description}
+        material={product.material}
         variants={product.variants}
         images={product.images}
       />
+
+      {related.length > 0 && (
+        <section className="max-w-[1320px] mx-auto px-6 mt-20 pt-12 border-t border-line">
+          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-6 block">
+            More from {category.name}
+          </span>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            {related.map((p, i) => (
+              <ProductCard key={p.slug} product={p} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Product structured data — helps LLMs and search engines cite this exact item */}
       <script

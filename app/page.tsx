@@ -5,6 +5,8 @@ import { getHomeContent, getCompanyStats, paragraphs } from "@/lib/content";
 import ProductCard from "@/components/ProductCard";
 import HeroCarousel from "@/components/HeroCarousel";
 import BracketLabel from "@/components/BracketLabel";
+import Button from "@/components/Button";
+import ArrowBadge from "@/components/ArrowBadge";
 
 export const revalidate = 60;
 
@@ -33,12 +35,10 @@ export default async function HomePage() {
               {content.hero.subcopy}
             </p>
             <div className="flex items-center gap-3 mt-8">
-              <Link href="#categories" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium">
+              <Button href="#categories" size="lg">
                 View Collection
-              </Link>
-              <Link href="#categories" aria-label="Scroll to collection" className="w-[52px] h-[52px] rounded-full bg-ink text-on-dark inline-flex items-center justify-center shrink-0">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-              </Link>
+              </Button>
+              <ArrowBadge href="#categories" tone="accent" size="lg" aria-label="Scroll to collection" />
             </div>
           </div>
           <HeroCarousel slides={heroSlides} />
@@ -130,9 +130,9 @@ export default async function HomePage() {
               <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">Catalogue — 01</span>
               <h2 className="text-[clamp(24px,3vw,32px)] font-medium tracking-tight">Premium Garments</h2>
             </div>
-            <Link href="/garments" className="font-mono-ui text-[12px] uppercase tracking-wide border-b border-ink self-start">
+            <Button href="/garments" variant="ghost" className="self-start">
               View all garments
-            </Link>
+            </Button>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 border-t border-line pt-8">
             {garments.products.map((p, i) => (
@@ -149,9 +149,9 @@ export default async function HomePage() {
             <div>
               <h2 className="text-[clamp(24px,3vw,32px)] font-medium tracking-tight">Full Grain Leather</h2>
             </div>
-            <Link href="/leather" className="font-mono-ui text-[12px] uppercase tracking-wide border-b border-ink self-start">
+            <Button href="/leather" variant="ghost" className="self-start">
               View all leather goods
-            </Link>
+            </Button>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 pt-8 border-t border-line">
             {leather.products.map((p, i) => (
@@ -187,9 +187,9 @@ export default async function HomePage() {
         <div className="max-w-[1320px] mx-auto px-6 text-center">
           <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">{content.cta.eyebrow}</span>
           <h2 className="text-[clamp(26px,4vw,36px)] font-medium tracking-tight mb-8">{content.cta.heading}</h2>
-          <Link href="/quote" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium">
+          <Button href="/quote" variant="accent" size="lg">
             Start Your Quote
-          </Link>
+          </Button>
         </div>
       </section>
     </main>

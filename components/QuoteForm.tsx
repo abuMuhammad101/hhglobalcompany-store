@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/lib/types";
 import QuoteImageUploader from "@/components/QuoteImageUploader";
+import Button from "@/components/Button";
 
 type Props = {
   catalog: Category[];
@@ -78,7 +79,11 @@ export default function QuoteForm({ catalog, presetCategory, presetProductType, 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl">
+    <form onSubmit={handleSubmit} className="max-w-2xl rounded-2xl border border-line bg-bg-soft p-6 sm:p-8">
+      <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-6 block">
+        Request Form
+      </span>
+
       <div className="grid sm:grid-cols-2 gap-6 mb-6">
         <Field label="Full Name" required>
           <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="John Doe" className={inputClass} />
@@ -94,7 +99,7 @@ export default function QuoteForm({ catalog, presetCategory, presetProductType, 
         </Field>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6">
         {items.map((item, i) => (
           <QuoteItemCard
             key={i}
@@ -107,13 +112,12 @@ export default function QuoteForm({ catalog, presetCategory, presetProductType, 
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={addItem}
-        className="mt-6 font-mono-ui text-[12px] uppercase tracking-wide border-b border-ink pb-[2px]"
-      >
-        + Add Another Product
-      </button>
+      <Button type="button" variant="outline" size="sm" onClick={addItem} className="mt-6">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        Add Another Product
+      </Button>
 
       <div className="mt-10">
         <Field label="Anything Else We Should Know?">
@@ -127,16 +131,20 @@ export default function QuoteForm({ catalog, presetCategory, presetProductType, 
         </Field>
       </div>
 
-      {error && <p className="text-sm text-red-700 mt-4">{error}</p>}
+      {error && (
+        <div className="flex items-start gap-2.5 mt-6 p-3.5 rounded-lg border border-red-200 bg-red-50 text-red-700 text-sm">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 8v5M12 16h.01" />
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="flex items-center gap-3 mt-8">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium disabled:opacity-60"
-        >
+        <Button type="submit" variant="accent" size="lg" disabled={submitting}>
           {submitting ? "Submitting..." : "Submit Quote Request"}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -160,9 +168,14 @@ function QuoteItemCard({
   const variants = productData?.variants ?? [];
 
   return (
-    <div className="border border-line rounded-lg p-5 sm:p-6 relative">
+    <div className="border border-line rounded-2xl p-5 sm:p-6 bg-bg relative">
       <div className="flex items-center justify-between mb-5">
-        <span className="font-mono-ui text-[11px] uppercase tracking-wide text-ink-faint">Product {index + 1}</span>
+        <div className="flex items-center gap-2.5">
+          <span className="w-7 h-7 rounded-full bg-ink text-on-dark font-mono-ui text-[11px] flex items-center justify-center shrink-0">
+            {index + 1}
+          </span>
+          <span className="font-mono-ui text-[11px] uppercase tracking-wide text-ink-muted">Product {index + 1}</span>
+        </div>
         {onRemove && (
           <button type="button" onClick={onRemove} className="text-xs text-ink-muted hover:text-red-700">
             Remove
@@ -172,9 +185,8 @@ function QuoteItemCard({
 
       <div className="grid sm:grid-cols-2 gap-6 mb-6">
         <Field label="Product Category" required>
-          <select
+          <SelectField
             required
-            className={inputClass}
             value={item.category}
             onChange={(e) => onChange({ category: e.target.value, productType: "", variant: "" })}
           >
@@ -182,12 +194,11 @@ function QuoteItemCard({
             {catalog.map((c) => (
               <option key={c.slug} value={c.slug}>{c.name}</option>
             ))}
-          </select>
+          </SelectField>
         </Field>
         <Field label="Product Type" required>
-          <select
+          <SelectField
             required
-            className={inputClass}
             value={item.productType}
             disabled={!item.category}
             onChange={(e) => onChange({ productType: e.target.value, variant: "" })}
@@ -196,19 +207,19 @@ function QuoteItemCard({
             {(categoryData?.products ?? []).map((p) => (
               <option key={p.slug} value={p.type}>{p.type}</option>
             ))}
-          </select>
+          </SelectField>
         </Field>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-6 mb-6">
         {variants.length > 0 && (
           <Field label="Style / Finish">
-            <select className={inputClass} value={item.variant} onChange={(e) => onChange({ variant: e.target.value })}>
+            <SelectField value={item.variant} onChange={(e) => onChange({ variant: e.target.value })}>
               <option value="">Select style / finish</option>
               {variants.map((v) => (
                 <option key={v.id ?? v.name} value={v.name}>{v.name}</option>
               ))}
-            </select>
+            </SelectField>
           </Field>
         )}
         <Field label="Preferred Color(s)" hint="Optional — we'll confirm availability">
@@ -258,7 +269,28 @@ function QuoteItemCard({
 }
 
 const inputClass =
-  "w-full text-base bg-transparent border-0 border-b-[1.5px] border-line py-2.5 px-0.5 focus:border-ink focus:outline-none";
+  "w-full text-base bg-bg rounded-lg border border-line px-3.5 py-2.5 focus:outline-none focus:border-ink focus:ring-2 focus:ring-accent-soft transition-colors disabled:opacity-60 disabled:cursor-not-allowed";
+
+function SelectField({ className = "", ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div className="relative">
+      <select {...props} className={`${inputClass} appearance-none pr-9 ${className}`} />
+      <svg
+        viewBox="0 0 24 24"
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-muted"
+      >
+        <path d="M6 9l6 6 6-6" />
+      </svg>
+    </div>
+  );
+}
 
 function Field({
   label,

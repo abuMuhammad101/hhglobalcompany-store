@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { ProductImage, Variant } from "@/lib/types";
+import Button from "@/components/Button";
 
 const fallbackGradients = [
   "linear-gradient(160deg,#EFEDE6,#D7D3C6)",
@@ -18,6 +19,7 @@ type Props = {
   productName: string;
   productType: string;
   description: string;
+  material?: string;
   variants: Variant[];
   images: ProductImage[];
   compact?: boolean;
@@ -39,6 +41,7 @@ export default function ProductView({
   productName,
   productType,
   description,
+  material,
   variants,
   images,
   compact = false,
@@ -91,26 +94,30 @@ export default function ProductView({
     >
       <div>
         <div
-          tabIndex={0}
-          role="img"
-          aria-label={`${productName}${active ? " — " + active.name : ""} photo${
-            hasGallery ? ` ${activeIndex + 1} of ${galleryImages.length}` : ""
-          }`}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowLeft") goTo(-1);
-            if (e.key === "ArrowRight") goTo(1);
-          }}
-          onClick={() => !compact && displayImageUrl && setLightboxOpen(true)}
-          className={`relative aspect-[4/5] flex items-center justify-center font-mono-ui text-[11px] uppercase tracking-wide text-ink-faint outline-none focus-visible:ring-2 focus-visible:ring-ink ${
+          className={`relative aspect-[4/5] overflow-hidden rounded-2xl border border-line ${
             !compact && displayImageUrl ? "cursor-zoom-in" : ""
           }`}
-          style={
-            displayImageUrl
-              ? { backgroundImage: `url(${displayImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
-              : { background: fallbackGradients[selected % fallbackGradients.length] }
-          }
         >
-          {!displayImageUrl && `${productName}${active ? " — " + active.name : ""} photo`}
+          <div
+            tabIndex={0}
+            role="img"
+            aria-label={`${productName}${active ? " — " + active.name : ""} photo${
+              hasGallery ? ` ${activeIndex + 1} of ${galleryImages.length}` : ""
+            }`}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowLeft") goTo(-1);
+              if (e.key === "ArrowRight") goTo(1);
+            }}
+            onClick={() => !compact && displayImageUrl && setLightboxOpen(true)}
+            className="absolute inset-0 flex items-center justify-center font-mono-ui text-[11px] uppercase tracking-wide text-ink-faint outline-none focus-visible:ring-2 focus-visible:ring-ink"
+            style={
+              displayImageUrl
+                ? { backgroundImage: `url(${displayImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+                : { background: fallbackGradients[selected % fallbackGradients.length] }
+            }
+          >
+            {!displayImageUrl && `${productName}${active ? " — " + active.name : ""} photo`}
+          </div>
 
           {hasGallery && (
             <>
@@ -121,7 +128,7 @@ export default function ProductView({
         </div>
 
         {hasGallery && (
-          <div className="flex gap-2 mt-3 overflow-x-auto">
+          <div className="flex gap-2.5 mt-3 overflow-x-auto">
             {galleryImages.map((url, i) => (
               <button
                 key={i}
@@ -129,8 +136,8 @@ export default function ProductView({
                 onClick={() => setActiveIndex(i)}
                 aria-label={`View photo ${i + 1}`}
                 aria-current={i === activeIndex}
-                className={`w-14 h-14 shrink-0 rounded border bg-cover bg-center transition-opacity ${
-                  i === activeIndex ? "border-ink" : "border-line opacity-60 hover:opacity-100"
+                className={`w-16 h-16 shrink-0 rounded-xl border-2 bg-cover bg-center transition-all ${
+                  i === activeIndex ? "border-accent" : "border-line opacity-60 hover:opacity-100"
                 }`}
                 style={{ backgroundImage: `url(${url})` }}
               />
@@ -159,6 +166,13 @@ export default function ProductView({
         <h1 className="text-[clamp(28px,4vw,44px)] font-medium tracking-tight mb-4">{productName}</h1>
         <p className="text-ink-muted max-w-[50ch] mb-8">{description}</p>
 
+        <div className="border border-line rounded-2xl p-6 mb-8 grid grid-cols-2 gap-x-6 gap-y-4">
+          <DetailRow label="Category" value={categoryName} />
+          <DetailRow label="Product Type" value={productType} />
+          {active && <DetailRow label="Style / Finish" value={active.name} />}
+          {material && <DetailRow label="Material" value={material} />}
+        </div>
+
         {hasVariants && (
           <div className="mb-8">
             <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
@@ -185,12 +199,9 @@ export default function ProductView({
           </div>
         )}
 
-        <Link
-          href={quoteHref}
-          className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium"
-        >
+        <Button href={quoteHref} variant="accent" size="lg">
           {hasVariants ? "Request Quote for This Style" : "Request Quote for This Product"}
-        </Link>
+        </Button>
       </div>
 
       {lightboxOpen && displayImageUrl && (
@@ -231,6 +242,15 @@ export default function ProductView({
           />
         </div>
       )}
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-faint mb-1">{label}</div>
+      <div className="text-[14px] text-ink font-medium">{value}</div>
     </div>
   );
 }

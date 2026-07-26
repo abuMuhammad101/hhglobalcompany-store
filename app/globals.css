@@ -12,6 +12,11 @@
   --panel-line: rgba(244, 243, 238, 0.14);
   --on-dark: #F4F3EE;
   --on-dark-muted: #8D958E;
+
+  /* The one deliberate exception to the monochrome palette — used sparingly,
+     for the single primary action per page (see CLAUDE.md design language). */
+  --accent: #C9A24B;
+  --accent-soft: #F1E6CC;
 }
 
 @theme inline {
@@ -24,6 +29,8 @@
   --color-panel-dark: var(--panel-dark);
   --color-on-dark: var(--on-dark);
   --color-on-dark-muted: var(--on-dark-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
 
   --font-display: var(--font-archivo);
   --font-mono-ui: var(--font-space-mono);

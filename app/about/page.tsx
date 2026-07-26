@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import BracketLabel from "@/components/BracketLabel";
+import Button from "@/components/Button";
 import { getAboutContent, getCompanyStats, paragraphs } from "@/lib/content";
 
 export const revalidate = 60;
@@ -31,9 +31,9 @@ export default async function AboutPage() {
             <p className="text-ink-muted text-[15px] leading-relaxed max-w-[52ch]">
               {content.hero.body}
             </p>
-            <Link href="/quote" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium mt-8">
+            <Button href="/quote" variant="accent" size="lg" className="mt-8">
               Start a Quote
-            </Link>
+            </Button>
           </div>
           <div
             className="relative aspect-[5/4] sm:aspect-[4/5] lg:aspect-[4/5] max-h-[420px] sm:max-h-[560px] lg:max-h-[620px] rounded-2xl border border-line overflow-hidden flex items-center justify-center"
@@ -104,9 +104,9 @@ export default async function AboutPage() {
             <p className="text-ink-muted text-[15px] leading-relaxed max-w-[52ch] mx-auto mb-8">
               {content.closingCta.body}
             </p>
-            <Link href="/quote" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium">
+            <Button href="/quote" variant="accent" size="lg">
               Start a Quote
-            </Link>
+            </Button>
           </div>
         </div>
       </section>

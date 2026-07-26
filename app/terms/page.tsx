@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTermsContent, paragraphs } from "@/lib/content";
+import Button from "@/components/Button";
 
 export const revalidate = 60;
 
@@ -65,12 +65,9 @@ export default async function TermsPage() {
               <p className="text-ink-muted text-sm mb-5">
                 {content.closingNote}
               </p>
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-ink text-on-dark text-sm font-medium"
-              >
+              <Button href="/contact" size="md">
                 Contact Us
-              </Link>
+              </Button>
             </div>
           </div>
         </div>
