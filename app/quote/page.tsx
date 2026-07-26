@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getCatalog } from "@/lib/catalog";
+import { getQuoteContent } from "@/lib/content";
 import QuoteForm from "@/components/QuoteForm";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Request a Quote",
@@ -14,7 +17,7 @@ export default async function QuotePage({
   searchParams: Promise<{ type?: string; variant?: string }>;
 }) {
   const { type, variant } = await searchParams;
-  const catalog = await getCatalog();
+  const [catalog, content] = await Promise.all([getCatalog(), getQuoteContent()]);
 
   let presetCategory: string | undefined;
   let presetProductType: string | undefined;
@@ -35,14 +38,13 @@ export default async function QuotePage({
       <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-[0.8fr_1.2fr] gap-12">
         <div>
           <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">
-            Consultation
+            {content.intro.eyebrow}
           </span>
           <h1 className="text-[clamp(26px,3.6vw,38px)] font-medium tracking-tight mb-4 max-w-[14ch]">
-            Ready to define your requirements?
+            {content.intro.heading}
           </h1>
           <p className="text-ink-muted max-w-[42ch] text-[15px]">
-            Every project begins with a conversation. Detail your necessity below and our
-            manufacturing team will provide a tailored estimate within 24 hours.
+            {content.intro.body}
           </p>
         </div>
 

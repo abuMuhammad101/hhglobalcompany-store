@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import BracketLabel from "@/components/BracketLabel";
+import { getAboutContent, getCompanyStats, paragraphs } from "@/lib/content";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "About",
@@ -8,32 +11,25 @@ export const metadata: Metadata = {
     "H&H Global LLC is a manufacturer, wholesaler, exporter and brand delivering quality garments and full-grain leather goods, plus custom manufacturing for businesses worldwide.",
 };
 
-const offerings = [
-  { title: "Our Own Premium Product Collections", icon: "tag" },
-  { title: "Custom Manufacturing & Product Development", icon: "cog" },
-  { title: "Private Label & White Label Services", icon: "layers" },
-  { title: "OEM & ODM Production", icon: "box" },
-  { title: "Leather Products & Garments", icon: "shirt" },
-  { title: "Bulk & Wholesale Supply", icon: "package" },
-  { title: "Quality Control & Export Services", icon: "shield" },
-  { title: "Global Shipping & Business Support", icon: "globe" },
-] as const;
+// Icons stay fixed per offering position — only the title text is admin-editable,
+// so a typo/rename can never point at a missing icon key.
+const offeringIcons = ["tag", "cog", "layers", "box", "shirt", "package", "shield", "globe"] as const;
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [content, stats] = await Promise.all([getAboutContent(), getCompanyStats()]);
+
   return (
     <main>
       {/* HERO */}
       <section className="pt-16 pb-20 sm:pb-24">
         <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
           <div>
-            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">About</span>
+            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">{content.hero.eyebrow}</span>
             <h1 className="text-[clamp(32px,5vw,52px)] font-medium tracking-tight leading-[1.1] max-w-[16ch] mb-6">
-              A workshop built on craftsmanship, trusted worldwide.
+              {content.hero.heading}
             </h1>
             <p className="text-ink-muted text-[15px] leading-relaxed max-w-[52ch]">
-              Welcome to H&amp;H Global LLC — a manufacturer, wholesaler, exporter and brand
-              dedicated to delivering quality products with exceptional craftsmanship, from our
-              own collections to custom manufacturing for brands worldwide.
+              {content.hero.body}
             </p>
             <Link href="/quote" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium mt-8">
               Start a Quote
@@ -53,28 +49,12 @@ export default function AboutPage() {
       <section className="py-16 sm:py-20 bg-bg-soft border-y border-line">
         <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-[1fr_1.4fr] gap-10 lg:gap-16">
           <h2 className="text-[clamp(22px,3vw,30px)] font-medium tracking-tight leading-[1.2] max-w-[16ch]">
-            From material to finished good, we stay hands-on.
+            {content.story.heading}
           </h2>
           <div className="text-ink-muted space-y-5 text-[15px] leading-relaxed max-w-[68ch]">
-            <p>
-              Our business was founded with a passion for creating premium leather products and
-              garments that combine durability, functionality, and modern design. Through our own
-              brand, we offer carefully developed products that reflect our commitment to quality
-              and attention to detail.
-            </p>
-            <p>
-              In addition to our branded collection, we proudly provide custom manufacturing
-              services for businesses, retailers, distributors, startups, and established brands
-              worldwide. Whether you need private-label production, OEM manufacturing, custom
-              designs, or products developed according to your specifications, our team has the
-              expertise and production capabilities to bring your ideas to life.
-            </p>
-            <p>
-              We work closely with our clients throughout the manufacturing process — from product
-              development and material selection to sampling, production, quality control, and
-              international shipping — so brands can meet their exact requirements while
-              maintaining the highest standards of quality and reliability.
-            </p>
+            {paragraphs(content.story.body).map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
           </div>
         </div>
       </section>
@@ -83,15 +63,15 @@ export default function AboutPage() {
       <section className="py-20 sm:py-24">
         <div className="max-w-[1320px] mx-auto px-6">
           <div className="mb-12">
-            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">What We Offer</span>
+            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">{content.offer.eyebrow}</span>
             <h2 className="text-[clamp(26px,3.6vw,38px)] font-medium tracking-tight max-w-[20ch]">
-              One partner, every stage of the product journey.
+              {content.offer.heading}
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {offerings.map((item) => (
-              <div key={item.title} className="border border-line rounded-2xl p-6 sm:p-7">
-                <OfferIcon name={item.icon} />
+            {content.offer.offerings.map((item, i) => (
+              <div key={i} className="border border-line rounded-2xl p-6 sm:p-7">
+                <OfferIcon name={offeringIcons[i % offeringIcons.length]} />
                 <h3 className="text-[15px] font-medium leading-snug mt-5">{item.title}</h3>
               </div>
             ))}
@@ -103,10 +83,10 @@ export default function AboutPage() {
       <section className="py-20 sm:py-24 bg-bg-soft border-y border-line">
         <div className="max-w-[1320px] mx-auto px-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard num="12+" label="Years crafting" />
-            <StatCard num="1,400+" label="Orders fulfilled" />
-            <StatCard num="25" label="Unit minimum" />
-            <StatCard num="24 hrs" label="Avg. quote turnaround" />
+            <StatCard num={stats.years.num} label={stats.years.label} />
+            <StatCard num={stats.orders.num} label={stats.orders.label} />
+            <StatCard num={stats.minUnits.num} label={stats.minUnits.label} />
+            <StatCard num={stats.turnaround.num} label={stats.turnaround.label} />
           </div>
         </div>
       </section>
@@ -116,14 +96,13 @@ export default function AboutPage() {
         <div className="max-w-[1320px] mx-auto px-6">
           <div className="border border-line rounded-2xl p-10 sm:p-16 text-center max-w-[820px] mx-auto">
             <BracketLabel className="text-ink-muted mb-6">
-              <span className="font-mono-ui text-[11px] uppercase tracking-wider">A Strong Partnership</span>
+              <span className="font-mono-ui text-[11px] uppercase tracking-wider">{content.closingCta.badge}</span>
             </BracketLabel>
             <h2 className="text-[clamp(24px,3.4vw,34px)] font-medium tracking-tight leading-[1.2] mb-4">
-              Every successful product starts with a partner you can trust.
+              {content.closingCta.heading}
             </h2>
             <p className="text-ink-muted text-[15px] leading-relaxed max-w-[52ch] mx-auto mb-8">
-              Whether you&rsquo;re purchasing from our brand or creating your own, we&rsquo;re
-              committed to delivering quality, professionalism, and long-term value.
+              {content.closingCta.body}
             </p>
             <Link href="/quote" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium">
               Start a Quote

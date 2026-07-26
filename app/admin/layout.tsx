@@ -25,6 +25,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link href="/admin/media" className="text-sm font-medium hover:text-ink-muted">
               Media
             </Link>
+            <Link href="/admin/content" className="text-sm font-medium hover:text-ink-muted">
+              Content
+            </Link>
           </nav>
           <Link href="/" className="ml-auto text-xs text-ink-muted hover:text-ink">
             &larr; Back to site

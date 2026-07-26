@@ -20,8 +20,12 @@ Three sections:
   exactly what customers see.
 - **Categories** — edit the Garments / Leather Products names and descriptions, each with
   its own cover photo.
-- **Media** — upload the site logo (shown in the header) and manage the photo carousel
-  that slides in the homepage hero — add as many photos as you like.
+- **Media** — upload the site logo, set the brand name shown next to it, and manage the
+  photo carousel that slides in the homepage hero — add as many photos as you like.
+- **Content** — edit the wording on every page: the homepage (hero, About Us section,
+  How It Works steps, bottom call-to-action), the About page, Contact info, the Quote
+  page (including the thank-you page), the Footer, and Terms & Policies. The four
+  company stats shown on both Home and About are edited once, from the Home page.
 
 Requires Supabase to be connected (see `data/schema.sql` — run it once in Supabase's
 SQL Editor to create every table and pre-fill it with your current catalog).
@@ -43,6 +47,14 @@ zoom.
 Run `data/schema-site-media.sql` once too (same place) — it enables the **Media** tab
 in the admin panel, where you can upload the site logo and add/remove photos for the
 homepage hero carousel.
+
+### Site-wide content
+Run `data/schema-page-content.sql` once too (same place) — it enables the **Content**
+tab, seeded with the site's current wording so nothing changes until you edit
+something. A handful of things stay fixed rather than editable, on purpose: nav labels,
+button text, the icons on the About page's "What We Offer" list, and the number of
+items in lists (process steps, offerings, terms sections) — keeping those fixed avoids
+ever breaking the page layout from the admin panel.
 
 ## Pages (in `app/`)
 - `page.tsx` — homepage

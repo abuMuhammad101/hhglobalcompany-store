@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCatalog } from "@/lib/catalog";
 import { getHeroSlides } from "@/lib/hero";
+import { getHomeContent, getCompanyStats, paragraphs } from "@/lib/content";
 import ProductCard from "@/components/ProductCard";
 import HeroCarousel from "@/components/HeroCarousel";
 import BracketLabel from "@/components/BracketLabel";
@@ -8,9 +9,15 @@ import BracketLabel from "@/components/BracketLabel";
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [catalog, heroSlides] = await Promise.all([getCatalog(), getHeroSlides()]);
+  const [catalog, heroSlides, content, stats] = await Promise.all([
+    getCatalog(),
+    getHeroSlides(),
+    getHomeContent(),
+    getCompanyStats(),
+  ]);
   const garments = catalog.find((c) => c.slug === "garments")!;
   const leather = catalog.find((c) => c.slug === "leather")!;
+  const aboutParagraphs = paragraphs(content.about.body);
 
   return (
     <main>
@@ -20,11 +27,10 @@ export default async function HomePage() {
           <div>
             <span className="text-xl text-ink-faint mb-4 block">*</span>
             <h1 className="text-[clamp(34px,5.5vw,60px)] leading-[1.08] font-medium tracking-tight max-w-[16ch]">
-              Precision garments &amp; full-grain leather goods.
+              {content.hero.heading}
             </h1>
             <p className="text-ink-muted mt-6 max-w-[48ch] text-[15px] leading-relaxed">
-              A manufacturer, wholesaler and exporter dedicated to quality craftsmanship —
-              from our own premium collections to custom manufacturing for brands worldwide.
+              {content.hero.subcopy}
             </p>
             <div className="flex items-center gap-3 mt-8">
               <Link href="#categories" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium">
@@ -44,19 +50,15 @@ export default async function HomePage() {
         <div className="max-w-[1320px] mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             <div>
-              <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">About Us</span>
+              <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">{content.about.eyebrow}</span>
               <h2 className="text-[clamp(28px,4vw,42px)] font-medium tracking-tight leading-[1.15] mb-6">
-                Built on craftsmanship. Trusted for the long run.
+                {content.about.heading}
               </h2>
-              <p className="text-ink-muted text-[15px] leading-relaxed max-w-[52ch] mb-4">
-                H&amp;H Global LLC is a manufacturer, wholesaler and exporter delivering premium
-                garments and full-grain leather goods — plus custom manufacturing, private label
-                and OEM production for brands worldwide.
-              </p>
-              <p className="text-ink-muted text-[15px] leading-relaxed max-w-[52ch] mb-8">
-                From material selection to sampling, production, quality control and international
-                shipping, we stay hands-on through every stage so your product ships exactly to spec.
-              </p>
+              {aboutParagraphs.map((p, i) => (
+                <p key={i} className={`text-ink-muted text-[15px] leading-relaxed max-w-[52ch] ${i === aboutParagraphs.length - 1 ? "mb-8" : "mb-4"}`}>
+                  {p}
+                </p>
+              ))}
               <Link href="/about">
                 <BracketLabel className="text-ink hover:text-ink-muted transition-colors">
                   <span className="font-mono-ui text-[12px] uppercase tracking-wider">Learn More About Us</span>
@@ -65,10 +67,10 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="grid grid-cols-2 auto-rows-fr gap-4 lg:self-stretch">
-              <StatCard num="12+" label="Years crafting" />
-              <StatCard num="1,400+" label="Orders fulfilled" />
-              <StatCard num="25" label="Unit minimum" />
-              <StatCard num="24 hrs" label="Avg. quote turnaround" />
+              <StatCard num={stats.years.num} label={stats.years.label} />
+              <StatCard num={stats.orders.num} label={stats.orders.label} />
+              <StatCard num={stats.minUnits.num} label={stats.minUnits.label} />
+              <StatCard num={stats.turnaround.num} label={stats.turnaround.label} />
             </div>
           </div>
         </div>
@@ -163,13 +165,13 @@ export default async function HomePage() {
       <section className="py-20 sm:py-24">
         <div className="max-w-[1320px] mx-auto px-6">
           <div className="text-center max-w-[48ch] mx-auto mb-12">
-            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">How It Works</span>
+            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">{content.process.eyebrow}</span>
             <h2 className="text-[clamp(26px,3.6vw,38px)] font-medium tracking-tight">
-              From spec to shipped, in four steps.
+              {content.process.heading}
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {processSteps.map((step, i) => (
+            {content.process.steps.map((step, i) => (
               <div key={step.title} className="border border-line rounded-2xl p-8">
                 <span className="font-mono-ui text-[13px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
                 <h3 className="text-[18px] font-medium mt-4 mb-2">{step.title}</h3>
@@ -183,8 +185,8 @@ export default async function HomePage() {
       {/* CTA */}
       <section className="py-16">
         <div className="max-w-[1320px] mx-auto px-6 text-center">
-          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">Get a Quote</span>
-          <h2 className="text-[clamp(26px,4vw,36px)] font-medium tracking-tight mb-8">Have a bulk order in mind?</h2>
+          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">{content.cta.eyebrow}</span>
+          <h2 className="text-[clamp(26px,4vw,36px)] font-medium tracking-tight mb-8">{content.cta.heading}</h2>
           <Link href="/quote" className="inline-flex items-center justify-center h-[52px] px-8 rounded-full bg-ink text-on-dark font-medium">
             Start Your Quote
           </Link>
@@ -193,25 +195,6 @@ export default async function HomePage() {
     </main>
   );
 }
-
-const processSteps = [
-  {
-    title: "Share Your Specs",
-    description: "Tell us quantity, fabric or leather, finish and timeline through a quick quote request.",
-  },
-  {
-    title: "Sample & Confirm",
-    description: "We produce a sample and lock in pricing once you approve the spec.",
-  },
-  {
-    title: "Production & QC",
-    description: "Your run goes into production with quality control checks at every stage.",
-  },
-  {
-    title: "Ship & Deliver",
-    description: "Finished goods are packed and shipped worldwide, on the timeline we quoted.",
-  },
-];
 
 function StatCard({ num, label }: { num: string; label: string }) {
   return (

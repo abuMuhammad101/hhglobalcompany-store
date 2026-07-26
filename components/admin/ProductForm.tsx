@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Section, Field, SaveBar, inputClass } from "@/components/admin/FormKit";
 
 type CategoryOption = { id: string; name: string };
 
@@ -140,64 +141,11 @@ export default function ProductForm({ categories, initial }: Props) {
       {error && <p className="text-sm text-red-700">{error}</p>}
 
       <div className="flex items-center gap-5">
-        <button
-          type="submit"
-          disabled={saving === "saving"}
-          className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-ink text-on-dark text-sm font-medium disabled:opacity-60"
-        >
-          {saving === "saving" ? "Saving..." : isEdit ? "Save Changes" : "Create Product"}
-        </button>
-        {saving === "saved" && <span className="text-xs text-ink-muted">Saved</span>}
+        <SaveBar saving={saving} label={isEdit ? "Save Changes" : "Create Product"} />
         <Link href="/admin/products" className="text-sm text-ink-muted hover:text-ink">
           Cancel
         </Link>
       </div>
     </form>
-  );
-}
-
-const inputClass =
-  "w-full text-base bg-transparent border border-line rounded px-3 py-2.5 focus:border-ink focus:outline-none";
-
-function Section({
-  title,
-  hint,
-  children,
-}: {
-  title: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="mb-5 pb-3 border-b border-line">
-        <h2 className="text-sm font-medium uppercase tracking-wide">{title}</h2>
-        {hint && <p className="text-xs text-ink-faint mt-1.5 max-w-[52ch]">{hint}</p>}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  required,
-  hint,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <label className="block text-xs font-medium uppercase tracking-wide text-ink-muted mb-2">
-        {label}
-        {required && " *"}
-      </label>
-      {children}
-      {hint && <span className="block text-xs text-ink-faint mt-1.5">{hint}</span>}
-    </div>
   );
 }

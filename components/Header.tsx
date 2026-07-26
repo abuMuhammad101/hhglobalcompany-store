@@ -11,7 +11,7 @@ function navLinkClass(active: boolean) {
   ].join(" ");
 }
 
-export default function Header({ logoUrl }: { logoUrl?: string | null }) {
+export default function Header({ logoUrl, brandName }: { logoUrl?: string | null; brandName: string }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
@@ -27,7 +27,7 @@ export default function Header({ logoUrl }: { logoUrl?: string | null }) {
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logoSrc} alt="" className="h-8 w-auto" />
-          <span className="font-semibold text-[16px] tracking-tight">H&amp;H Global</span>
+          <span className="font-semibold text-[16px] tracking-tight">{brandName}</span>
         </Link>
 
         <nav className="hidden lg:block" aria-label="Primary">

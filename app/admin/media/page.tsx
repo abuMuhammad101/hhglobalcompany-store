@@ -24,7 +24,7 @@ export default async function AdminMediaPage() {
     );
   }
 
-  const [{ logoUrl }, { data: slides }] = await Promise.all([
+  const [{ logoUrl, brandName }, { data: slides }] = await Promise.all([
     getSiteSettings(),
     supabase.from("hero_slides").select("id, image_url, label, sort_order").order("sort_order"),
   ]);
@@ -33,7 +33,7 @@ export default async function AdminMediaPage() {
     <main className="py-10">
       <div className="max-w-[700px] mx-auto px-6 space-y-10">
         <h1 className="text-2xl">Media</h1>
-        <LogoManager initialLogoUrl={logoUrl} />
+        <LogoManager initialLogoUrl={logoUrl} initialBrandName={brandName} />
         <div className="border border-line rounded-lg p-6">
           <HeroSlideManager initialSlides={slides ?? []} />
         </div>
