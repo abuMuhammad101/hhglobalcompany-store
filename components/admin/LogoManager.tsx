@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ImageUploader from "@/components/admin/ImageUploader";
-import { Field, inputClass } from "@/components/admin/FormKit";
+import { Field, saveJson, type SavingState, inputClass } from "@/components/admin/FormKit";
 
 export default function LogoManager({
   initialLogoUrl,
@@ -13,17 +13,17 @@ export default function LogoManager({
 }) {
   const [logoUrl, setLogoUrl] = useState(initialLogoUrl);
   const [brandName, setBrandName] = useState(initialBrandName);
-  const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
+  const [saving, setSaving] = useState<SavingState>("idle");
 
   async function save(patch: { logoUrl?: string | null; brandName?: string }) {
     setSaving("saving");
-    await fetch("/api/admin/settings", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(patch),
-    });
-    setSaving("saved");
-    setTimeout(() => setSaving("idle"), 1500);
+    try {
+      await saveJson("/api/admin/settings", "PATCH", patch);
+      setSaving("saved");
+      setTimeout(() => setSaving("idle"), 1500);
+    } catch {
+      setSaving("error");
+    }
   }
 
   function handleLogoChange(url: string | null) {
@@ -60,6 +60,7 @@ export default function LogoManager({
         </button>
       </form>
       {saving === "saved" && <span className="text-xs text-ink-muted block mt-2">Saved</span>}
+      {saving === "error" && <span className="text-xs text-red-700 block mt-2">Couldn&apos;t save — try again</span>}
     </div>
   );
 }

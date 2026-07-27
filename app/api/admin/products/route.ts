@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { revalidateSite } from "@/lib/revalidate";
 
 export async function POST(req: NextRequest) {
   const supabase = getSupabase();
@@ -31,5 +32,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 
+  revalidateSite();
   return NextResponse.json({ ok: true, id: data.id });
 }

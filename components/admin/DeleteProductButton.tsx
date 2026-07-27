@@ -18,7 +18,12 @@ export default function DeleteProductButton({
       return;
     }
     setBusy(true);
-    await fetch(`/api/admin/products/${productId}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/products/${productId}`, { method: "DELETE" });
+    if (!res.ok) {
+      setBusy(false);
+      alert("Couldn't delete that product — please try again.");
+      return;
+    }
     router.refresh();
   }
 

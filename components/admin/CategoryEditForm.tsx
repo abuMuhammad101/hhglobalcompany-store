@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ImageUploader from "./ImageUploader";
+import { saveJson, type SavingState } from "./FormKit";
 
 type Category = {
   id: string;
@@ -15,18 +16,18 @@ export default function CategoryEditForm({ category }: { category: Category }) {
   const [name, setName] = useState(category.name);
   const [description, setDescription] = useState(category.description ?? "");
   const [imageUrl, setImageUrl] = useState<string | null>(category.image_url);
-  const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
+  const [saving, setSaving] = useState<SavingState>("idle");
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving("saving");
-    await fetch(`/api/admin/categories/${category.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, imageUrl }),
-    });
-    setSaving("saved");
-    setTimeout(() => setSaving("idle"), 1500);
+    try {
+      await saveJson(`/api/admin/categories/${category.id}`, "PATCH", { name, description, imageUrl });
+      setSaving("saved");
+      setTimeout(() => setSaving("idle"), 1500);
+    } catch {
+      setSaving("error");
+    }
   }
 
   return (
@@ -70,6 +71,7 @@ export default function CategoryEditForm({ category }: { category: Category }) {
           {saving === "saving" ? "Saving..." : "Save"}
         </button>
         {saving === "saved" && <span className="text-xs text-ink-muted">Saved</span>}
+        {saving === "error" && <span className="text-xs text-red-700">Couldn&apos;t save — try again</span>}
       </div>
     </form>
   );

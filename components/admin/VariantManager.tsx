@@ -22,25 +22,37 @@ export default function VariantManager({
   const [newName, setNewName] = useState("");
   const [newImage, setNewImage] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState("");
 
   async function addVariant(e: React.FormEvent) {
     e.preventDefault();
     if (!newName.trim()) return;
     setAdding(true);
-    await fetch(`/api/admin/products/${productId}/variants`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newName, imageUrl: newImage }),
-    });
-    setNewName("");
-    setNewImage(null);
-    setAdding(false);
-    router.refresh();
+    setAddError("");
+    try {
+      const res = await fetch(`/api/admin/products/${productId}/variants`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName, imageUrl: newImage }),
+      });
+      if (!res.ok) throw new Error();
+      setNewName("");
+      setNewImage(null);
+      router.refresh();
+    } catch {
+      setAddError("Couldn't add that option — please try again.");
+    } finally {
+      setAdding(false);
+    }
   }
 
   async function deleteVariant(id: string) {
     if (!confirm("Remove this style/finish option?")) return;
-    await fetch(`/api/admin/variants/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/variants/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      alert("Couldn't remove that option — please try again.");
+      return;
+    }
     router.refresh();
   }
 
@@ -82,6 +94,7 @@ export default function VariantManager({
           </button>
         </div>
       </form>
+      {addError && <p className="text-xs text-red-700 mt-2">{addError}</p>}
     </div>
   );
 }
@@ -89,21 +102,22 @@ export default function VariantManager({
 function VariantRow({ variant, onDelete }: { variant: Variant; onDelete: () => void }) {
   const [name, setName] = useState(variant.name);
   const [imageUrl, setImageUrl] = useState<string | null>(variant.image_url);
-  const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
+  const [saving, setSaving] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [busy, setBusy] = useState(false);
 
   async function save(patch: { name?: string; imageUrl?: string | null }) {
     setSaving("saving");
     try {
-      await fetch(`/api/admin/variants/${variant.id}`, {
+      const res = await fetch(`/api/admin/variants/${variant.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(patch),
       });
+      if (!res.ok) throw new Error();
       setSaving("saved");
       setTimeout(() => setSaving("idle"), 1200);
     } catch {
-      setSaving("idle");
+      setSaving("error");
     }
   }
 
@@ -131,9 +145,10 @@ function VariantRow({ variant, onDelete }: { variant: Variant; onDelete: () => v
           }}
           className="w-full text-sm font-medium border border-line rounded px-2.5 py-2 focus:border-ink focus:outline-none"
         />
-        <div className="text-[10px] text-ink-faint mt-1 h-3">
-          {saving === "saving" && "Saving..."}
-          {saving === "saved" && "Saved"}
+        <div className="text-[10px] mt-1 h-3">
+          {saving === "saving" && <span className="text-ink-faint">Saving...</span>}
+          {saving === "saved" && <span className="text-ink-faint">Saved</span>}
+          {saving === "error" && <span className="text-red-700">Couldn&apos;t save</span>}
         </div>
       </div>
       <button

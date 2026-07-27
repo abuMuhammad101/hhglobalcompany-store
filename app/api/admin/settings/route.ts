@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { revalidateSite } from "@/lib/revalidate";
 
 const KEY_MAP: Record<string, string> = {
   logoUrl: "logo_url",
@@ -26,5 +27,6 @@ export async function PATCH(req: NextRequest) {
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
+  revalidateSite();
   return NextResponse.json({ ok: true });
 }

@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifySessionToken, ADMIN_SESSION_COOKIE } from "@/lib/adminAuth";
 
-export function proxy(req: NextRequest) {
+// Requests that must stay reachable without a session — otherwise nobody
+// could ever log in, or clear a stale cookie, in the first place.
+const PUBLIC_PATHS = ["/admin/login", "/api/admin/login", "/api/admin/logout"];
+
+export async function proxy(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  if (PUBLIC_PATHS.includes(pathname)) {
+    return NextResponse.next();
+  }
+
   const user = process.env.ADMIN_USER;
   const pass = process.env.ADMIN_PASSWORD;
 
@@ -9,14 +20,16 @@ export function proxy(req: NextRequest) {
     return new NextResponse("Admin access not configured.", { status: 503 });
   }
 
-  const authHeader = req.headers.get("authorization");
-  const expected = "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
+  const token = req.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  const authenticated = await verifySessionToken(token);
 
-  if (authHeader !== expected) {
-    return new NextResponse("Authentication required.", {
-      status: 401,
-      headers: { "WWW-Authenticate": 'Basic realm="HH Global Company Admin"' },
-    });
+  if (!authenticated) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ ok: false, error: "Not authenticated." }, { status: 401 });
+    }
+    const loginUrl = new URL("/admin/login", req.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();

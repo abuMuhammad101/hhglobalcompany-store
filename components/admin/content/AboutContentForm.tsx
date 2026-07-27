@@ -3,24 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AboutContent } from "@/lib/content";
-import { Section, Field, SaveBar, inputClass } from "@/components/admin/FormKit";
+import { Section, Field, SaveBar, saveJson, type SavingState, inputClass } from "@/components/admin/FormKit";
 
 export default function AboutContentForm({ initial }: { initial: AboutContent }) {
   const router = useRouter();
   const [content, setContent] = useState<AboutContent>(initial);
-  const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
+  const [saving, setSaving] = useState<SavingState>("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving("saving");
-    await fetch("/api/admin/content/about", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(content),
-    });
-    router.refresh();
-    setSaving("saved");
-    setTimeout(() => setSaving("idle"), 1500);
+    try {
+      await saveJson("/api/admin/content/about", "PATCH", content);
+      router.refresh();
+      setSaving("saved");
+      setTimeout(() => setSaving("idle"), 1500);
+    } catch {
+      setSaving("error");
+    }
   }
 
   function updateOffering(index: number, title: string) {

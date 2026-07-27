@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { revalidateSite } from "@/lib/revalidate";
 
 export async function DELETE(
   _req: NextRequest,
@@ -15,5 +16,6 @@ export async function DELETE(
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
+  revalidateSite();
   return NextResponse.json({ ok: true });
 }

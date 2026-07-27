@@ -21,12 +21,18 @@ export default function ProductGalleryManager({
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function persistOrder(next: GalleryImage[]) {
+    const prev = images;
     setImages(next);
-    await fetch(`/api/admin/products/${productId}/images`, {
+    const res = await fetch(`/api/admin/products/${productId}/images`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ order: next.map((img) => img.id) }),
     });
+    if (!res.ok) {
+      setImages(prev);
+      alert("Couldn't reorder photos — please try again.");
+      return;
+    }
     router.refresh();
   }
 
@@ -46,11 +52,13 @@ export default function ProductGalleryManager({
       body: JSON.stringify({ imageUrl: url }),
     });
     const body = await res.json().catch(() => ({}));
-    if (body.ok && body.image) {
+    if (res.ok && body.ok && body.image) {
       setImages((imgs) => [
         ...imgs,
         { id: body.image.id, image_url: body.image.image_url, sort_order: body.image.sort_order },
       ]);
+    } else {
+      alert(body.error || "Couldn't add that photo — please try again.");
     }
     setAddKey((k) => k + 1);
     router.refresh();
@@ -59,10 +67,14 @@ export default function ProductGalleryManager({
   async function removeImage(id: string) {
     if (!confirm("Remove this photo?")) return;
     setBusyId(id);
-    await fetch(`/api/admin/product-images/${id}`, { method: "DELETE" });
-    setImages((imgs) => imgs.filter((img) => img.id !== id));
+    const res = await fetch(`/api/admin/product-images/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setImages((imgs) => imgs.filter((img) => img.id !== id));
+      router.refresh();
+    } else {
+      alert("Couldn't remove that photo — please try again.");
+    }
     setBusyId(null);
-    router.refresh();
   }
 
   return (

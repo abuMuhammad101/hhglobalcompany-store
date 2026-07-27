@@ -90,6 +90,13 @@ export default function QuoteImageUploader({ value, onChange, label, hint }: Pro
             Uploading...
           </div>
         )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={onInputChange}
+          className="hidden"
+        />
       </div>
 
       <div className="flex items-center gap-3 mt-1.5">

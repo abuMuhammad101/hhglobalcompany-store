@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { revalidateSite } from "@/lib/revalidate";
 
 export async function POST(
   req: NextRequest,
@@ -31,6 +32,7 @@ export async function POST(
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
+  revalidateSite();
   return NextResponse.json({ ok: true, image: data });
 }
 
@@ -59,5 +61,6 @@ export async function PATCH(
   if (failed?.error) {
     return NextResponse.json({ ok: false, error: failed.error.message }, { status: 500 });
   }
+  revalidateSite();
   return NextResponse.json({ ok: true });
 }

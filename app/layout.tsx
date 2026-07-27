@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, Space_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { getSiteSettings } from "@/lib/settings";
-import { getFooterContent } from "@/lib/content";
-
-export const revalidate = 60;
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -40,10 +34,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [{ logoUrl, brandName }, footerContent] = await Promise.all([getSiteSettings(), getFooterContent()]);
   return (
     <html lang="en">
       <body className={`${archivo.variable} ${spaceMono.variable} antialiased`}>
@@ -67,9 +60,7 @@ export default async function RootLayout({
             }),
           }}
         />
-        <Header logoUrl={logoUrl} brandName={brandName} />
         {children}
-        <Footer content={footerContent} />
       </body>
     </html>
   );
