@@ -152,7 +152,7 @@ export default function ProductGalleryManager({
         onChange={handleAdd}
         onAddMultiple={handleAddMultiple}
         multiple
-        hint="Select multiple photos at once, or add them one at a time"
+        hint="Add photos — select multiple at once, or one at a time"
       />
     </div>
   );
