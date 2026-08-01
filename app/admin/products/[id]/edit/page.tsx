@@ -54,7 +54,7 @@ export default async function EditProductPage({
     : (product.categories as { name: string } | null)?.name ?? "";
 
   return (
-    <main className="py-10">
+    <main className="py-10 overflow-x-clip">
       <div className="max-w-[1200px] mx-auto px-6">
         <Breadcrumb items={[{ label: "Products", href: "/admin/products" }, { label: product.name }]} />
       </div>
