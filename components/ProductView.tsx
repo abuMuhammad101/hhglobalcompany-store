@@ -51,6 +51,17 @@ export default function ProductView({
   const [selected, setSelected] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  const ZOOM_MIN = 1;
+  const ZOOM_MAX = 3;
+  const ZOOM_STEP = 0.5;
+  function zoomIn() {
+    setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(1)));
+  }
+  function zoomOut() {
+    setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(1)));
+  }
 
   const hasVariants = variants.length > 0;
   // No style/finish is pre-selected — the page opens on the plain Featured
@@ -73,6 +84,12 @@ export default function ProductView({
   useEffect(() => {
     setActiveIndex(0);
   }, [selected]);
+
+  // Reset zoom whenever the lightbox opens or the photo changes, so a shopper
+  // never lands on the next/prev photo still zoomed in from the last one.
+  useEffect(() => {
+    setZoom(1);
+  }, [activeIndex, lightboxOpen]);
 
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -222,12 +239,37 @@ export default function ProductView({
             type="button"
             aria-label="Close"
             onClick={() => setLightboxOpen(false)}
-            className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+            className="absolute top-5 right-5 z-10 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
           >
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>
+
+          <div
+            className="absolute top-5 left-5 z-10 flex items-center gap-1 bg-white/10 rounded-full p-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Zoom out"
+              onClick={zoomOut}
+              disabled={zoom <= ZOOM_MIN}
+              className="w-8 h-8 rounded-full text-white flex items-center justify-center hover:bg-white/20 disabled:opacity-30"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14" /></svg>
+            </button>
+            <span className="text-white text-xs font-mono-ui w-10 text-center select-none">{Math.round(zoom * 100)}%</span>
+            <button
+              type="button"
+              aria-label="Zoom in"
+              onClick={zoomIn}
+              disabled={zoom >= ZOOM_MAX}
+              className="w-8 h-8 rounded-full text-white flex items-center justify-center hover:bg-white/20 disabled:opacity-30"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+            </button>
+          </div>
 
           <div className="relative w-full flex-1 min-h-0 flex items-center justify-center">
             {hasGallery && (
@@ -238,15 +280,21 @@ export default function ProductView({
             )}
 
             <div
-              className="w-full h-full max-w-[1100px]"
-              style={{
-                backgroundImage: `url(${displayImageUrl})`,
-                backgroundSize: "contain",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center",
-              }}
+              className="w-full h-full max-w-[1100px] overflow-auto flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
-            />
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={displayImageUrl}
+                alt=""
+                draggable={false}
+                onDoubleClick={() => setZoom((z) => (z > 1 ? 1 : 2))}
+                className={`max-w-full max-h-full object-contain transition-transform duration-200 select-none ${
+                  zoom > 1 ? "cursor-zoom-out" : "cursor-zoom-in"
+                }`}
+                style={{ transform: `scale(${zoom})` }}
+              />
+            </div>
           </div>
 
           {(hasGallery || hasVariants) && (

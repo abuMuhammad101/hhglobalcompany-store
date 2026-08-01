@@ -220,7 +220,14 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   photo it actually controls) — verified on both desktop and phone-size
   viewports. The full-screen lightbox now also includes its own copy of the
   thumbnail strip and Style/Finish pills, so a shopper can switch photos or
-  styles without leaving zoomed-in view.
+  styles without leaving zoomed-in view. The lightbox also has zoom in/out
+  controls (100-300%, +/- buttons or double-click to toggle, resets on photo
+  change) — fixed a real stacking bug along the way where the plain image
+  container div, despite being transparent, painted over the top-left corner
+  controls (any `position: relative`/`absolute` sibling with no explicit
+  `z-index` stacks by DOM order, and the image container came after in markup)
+  and silently ate their clicks; both the close button and the new zoom
+  controls now have `z-10` to guarantee they stay on top.
 - ✅ Sleek slide-in-on-scroll animations added across the whole public
   storefront (`components/Reveal.tsx`) — hero copy/carousel, About/story/
   offer/stats sections, category tiles, every product grid (staggered per
