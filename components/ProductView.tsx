@@ -212,7 +212,7 @@ export default function ProductView({
 
       {lightboxOpen && displayImageUrl && (
         <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6"
+          className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-6"
           onClick={() => setLightboxOpen(false)}
           role="dialog"
           aria-modal="true"
@@ -229,23 +229,71 @@ export default function ProductView({
             </svg>
           </button>
 
-          {hasGallery && (
-            <>
-              <GalleryArrow direction="prev" light onClick={(e) => { e.stopPropagation(); goTo(-1); }} />
-              <GalleryArrow direction="next" light onClick={(e) => { e.stopPropagation(); goTo(1); }} />
-            </>
-          )}
+          <div className="relative w-full flex-1 min-h-0 flex items-center justify-center">
+            {hasGallery && (
+              <>
+                <GalleryArrow direction="prev" light onClick={(e) => { e.stopPropagation(); goTo(-1); }} />
+                <GalleryArrow direction="next" light onClick={(e) => { e.stopPropagation(); goTo(1); }} />
+              </>
+            )}
 
-          <div
-            className="w-full h-full max-w-[1100px]"
-            style={{
-              backgroundImage: `url(${displayImageUrl})`,
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          />
+            <div
+              className="w-full h-full max-w-[1100px]"
+              style={{
+                backgroundImage: `url(${displayImageUrl})`,
+                backgroundSize: "contain",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          {(hasGallery || hasVariants) && (
+            <div
+              className="w-full max-w-[1100px] shrink-0 pt-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {hasGallery && (
+                <div className="flex gap-2.5 justify-center overflow-x-auto mb-3">
+                  {galleryImages.map((url, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setActiveIndex(i)}
+                      aria-label={`View photo ${i + 1}`}
+                      aria-current={i === activeIndex}
+                      className={`w-14 h-14 shrink-0 rounded-lg border-2 bg-cover bg-center transition-all ${
+                        i === activeIndex ? "border-accent" : "border-white/30 opacity-70 hover:opacity-100"
+                      }`}
+                      style={{ backgroundImage: `url(${url})` }}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {hasVariants && (
+                <div className="flex flex-wrap gap-2 justify-center" role="radiogroup" aria-label="Style or finish">
+                  {variants.map((v, i) => (
+                    <button
+                      key={v.id ?? v.name}
+                      type="button"
+                      role="radio"
+                      aria-checked={i === selected}
+                      onClick={() => setSelected(i)}
+                      className={`border px-3.5 py-1.5 text-sm rounded-full transition-colors ${
+                        i === selected
+                          ? "border-white bg-white text-ink"
+                          : "border-white/30 text-white hover:border-white/60"
+                      }`}
+                    >
+                      {v.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

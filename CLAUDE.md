@@ -189,7 +189,9 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   and moved the Style/Finish selector to sit directly under the photo/
   thumbnails (was previously in the right-hand info column, far from the
   photo it actually controls) — verified on both desktop and phone-size
-  viewports.
+  viewports. The full-screen lightbox now also includes its own copy of the
+  thumbnail strip and Style/Finish pills, so a shopper can switch photos or
+  styles without leaving zoomed-in view.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a
