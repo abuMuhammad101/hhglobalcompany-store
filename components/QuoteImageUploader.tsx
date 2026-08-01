@@ -15,17 +15,18 @@ export default function QuoteImageUploader({ value, onChange, label, hint }: Pro
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
 
-  // Phone photos routinely come in at 5-12MB, well past the ~4.5MB
-  // request-body limit our hosting platform enforces in front of the upload
-  // route — that rejection happens before our own route ever runs, as a bare
-  // non-JSON 413, so shrinking oversized photos here is what keeps a normal
-  // phone reference photo uploadable at all.
+  // Every upload is re-encoded to WebP client-side: it's a smaller, modern
+  // format regardless of what the visitor's phone or camera produced (HEIC,
+  // large JPEGs, PNGs, ...), which also keeps phone photos (routinely 5-12MB)
+  // well under the ~4.5MB request-body limit our hosting platform enforces in
+  // front of the upload route — that limit rejects oversized requests before
+  // our own route ever runs, as a bare non-JSON 413. GIFs are left alone so
+  // any animation survives, since a canvas re-encode only captures one frame.
   const MAX_DIMENSION = 1920;
-  const COMPRESS_ABOVE_BYTES = 1.5 * 1024 * 1024;
-  const JPEG_QUALITY = 0.85;
+  const WEBP_QUALITY = 0.85;
 
-  async function compressImage(file: File): Promise<File> {
-    if (file.type === "image/gif" || file.size <= COMPRESS_ABOVE_BYTES) return file;
+  async function convertToWebp(file: File): Promise<File> {
+    if (file.type === "image/gif") return file;
     try {
       const bitmap = await createImageBitmap(file);
       const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
@@ -37,10 +38,10 @@ export default function QuoteImageUploader({ value, onChange, label, hint }: Pro
       const ctx = canvas.getContext("2d");
       if (!ctx) return file;
       ctx.drawImage(bitmap, 0, 0, width, height);
-      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY));
-      if (!blob || blob.size >= file.size) return file;
-      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
-      return new File([blob], name, { type: "image/jpeg" });
+      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", WEBP_QUALITY));
+      if (!blob || blob.type !== "image/webp" || blob.size >= file.size) return file;
+      const name = file.name.replace(/\.[^.]+$/, "") + ".webp";
+      return new File([blob], name, { type: "image/webp" });
     } catch {
       return file;
     }
@@ -50,7 +51,7 @@ export default function QuoteImageUploader({ value, onChange, label, hint }: Pro
     setError("");
     setUploading(true);
     try {
-      const upload = await compressImage(file);
+      const upload = await convertToWebp(file);
       const formData = new FormData();
       formData.append("file", upload);
       const res = await fetch("/api/quote/upload", { method: "POST", body: formData });

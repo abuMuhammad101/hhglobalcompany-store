@@ -178,7 +178,8 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   generic "Upload failed." message — they were silently hitting the hosting
   platform's ~4.5MB request-size limit before ever reaching our own code. Both
   upload pipelines (admin `ImageUploader`, quote-form `QuoteImageUploader`) now
-  resize/compress oversized photos client-side before upload, and show a clear
+  re-encode every photo to WebP client-side before upload (capped at 1920px on
+  the long edge, GIFs left untouched to preserve animation), and show a clear
   message if a file is still rejected as too large
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
