@@ -95,7 +95,7 @@ export default async function EditProductPage({
           <span className="block text-xs font-medium uppercase tracking-wide text-ink-muted mb-4">
             Live preview — exactly what customers see
           </span>
-          <div className="border border-line rounded-lg p-6 sticky top-24 overflow-hidden">
+          <div className="border border-line rounded-lg p-6 sticky top-24 max-h-[calc(100vh-7rem)] overflow-x-hidden overflow-y-auto">
             <ProductView
               compact
               categoryName={categoryName}
