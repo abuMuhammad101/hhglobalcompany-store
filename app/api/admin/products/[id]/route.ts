@@ -13,7 +13,7 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  const { categoryId, name, slug, type, material, description } = body;
+  const { categoryId, name, slug, type, material, description, variantLabel } = body;
 
   const { error } = await supabase
     .from("products")
@@ -24,6 +24,7 @@ export async function PATCH(
       type,
       material: material || null,
       description: description || null,
+      variant_label: variantLabel || null,
     })
     .eq("id", id);
 

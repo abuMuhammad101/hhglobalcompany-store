@@ -22,6 +22,7 @@ type Props = {
   material?: string;
   variants: Variant[];
   images: ProductImage[];
+  variantLabel?: string;
   compact?: boolean;
 };
 
@@ -44,6 +45,7 @@ export default function ProductView({
   material,
   variants,
   images,
+  variantLabel = "Style / Finish",
   compact = false,
 }: Props) {
   const [selected, setSelected] = useState(0);
@@ -169,16 +171,16 @@ export default function ProductView({
         <div className="border border-line rounded-2xl p-6 mb-8 grid grid-cols-2 gap-x-6 gap-y-4">
           <DetailRow label="Category" value={categoryName} />
           <DetailRow label="Product Type" value={productType} />
-          {active && <DetailRow label="Style / Finish" value={active.name} />}
+          {active && <DetailRow label={variantLabel} value={active.name} />}
           {material && <DetailRow label="Material" value={material} />}
         </div>
 
         {hasVariants && (
           <div className="mb-8">
             <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
-              Style / Finish — {active!.name}
+              {variantLabel} — {active!.name}
             </span>
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style or finish">
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={variantLabel}>
               {variants.map((v, i) => (
                 <button
                   key={v.id ?? v.name}

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { categoryId, name, slug, type, material, description } = body;
+  const { categoryId, name, slug, type, material, description, variantLabel } = body;
 
   if (!categoryId || !name || !slug || !type) {
     return NextResponse.json({ ok: false, error: "Missing required fields." }, { status: 400 });
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       type,
       material: material || null,
       description: description || null,
+      variant_label: variantLabel || null,
     })
     .select("id")
     .single();

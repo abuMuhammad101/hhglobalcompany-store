@@ -15,6 +15,7 @@ type InitialProduct = {
   type: string;
   material: string;
   description: string;
+  variant_label: string | null;
 };
 
 type Props = {
@@ -42,6 +43,7 @@ export default function ProductForm({ categories, initial }: Props) {
   const [type, setType] = useState(initial?.type ?? "");
   const [material, setMaterial] = useState(initial?.material ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
+  const [variantLabel, setVariantLabel] = useState(initial?.variant_label ?? "");
   const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState("");
 
@@ -50,7 +52,7 @@ export default function ProductForm({ categories, initial }: Props) {
     setSaving("saving");
     setError("");
 
-    const payload = { categoryId, name, slug, type, material, description };
+    const payload = { categoryId, name, slug, type, material, description, variantLabel };
 
     try {
       const res = await fetch(isEdit ? `/api/admin/products/${initial!.id}` : "/api/admin/products", {
@@ -125,6 +127,18 @@ export default function ProductForm({ categories, initial }: Props) {
 
           <Field label="Material">
             <input value={material} onChange={(e) => setMaterial(e.target.value)} className={inputClass} />
+          </Field>
+
+          <Field
+            label="Variant Option Label"
+            hint="What to call the style/finish options below on the product page — e.g. 'Color' for a garment with color options, or 'Style / Finish' for a leather good. Leave blank to use 'Style / Finish'."
+          >
+            <input
+              value={variantLabel}
+              onChange={(e) => setVariantLabel(e.target.value)}
+              className={inputClass}
+              placeholder="Style / Finish"
+            />
           </Field>
         </div>
       </Section>
