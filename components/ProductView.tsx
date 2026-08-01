@@ -100,7 +100,7 @@ export default function ProductView({
     >
       <div className="min-w-0">
         <div
-          className={`relative aspect-[4/5] w-full max-h-[75vh] overflow-hidden rounded-2xl border border-line ${
+          className={`relative aspect-[4/5] w-full max-h-[55vh] overflow-hidden rounded-2xl border border-line ${
             !compact && displayImageUrl ? "cursor-zoom-in" : ""
           }`}
         >
@@ -150,6 +150,32 @@ export default function ProductView({
             ))}
           </div>
         )}
+
+        {hasVariants && (
+          <div className="mt-5">
+            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
+              Style / Finish{active ? ` — ${active.name}` : ""}
+            </span>
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style or finish">
+              {variants.map((v, i) => (
+                <button
+                  key={v.id ?? v.name}
+                  type="button"
+                  role="radio"
+                  aria-checked={i === selected}
+                  onClick={() => setSelected(i)}
+                  className={`border px-3.5 py-1.5 text-sm rounded-full transition-colors ${
+                    i === selected
+                      ? "border-ink bg-ink text-on-dark"
+                      : "border-line text-ink hover:border-ink-faint"
+                  }`}
+                >
+                  {v.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="min-w-0">
@@ -178,32 +204,6 @@ export default function ProductView({
           {active && <DetailRow label="Style / Finish" value={active.name} />}
           {material && <DetailRow label="Material" value={material} />}
         </div>
-
-        {hasVariants && (
-          <div className="mb-8">
-            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
-              Style / Finish{active ? ` — ${active.name}` : ""}
-            </span>
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style or finish">
-              {variants.map((v, i) => (
-                <button
-                  key={v.id ?? v.name}
-                  type="button"
-                  role="radio"
-                  aria-checked={i === selected}
-                  onClick={() => setSelected(i)}
-                  className={`border px-3.5 py-1.5 text-sm rounded-full transition-colors ${
-                    i === selected
-                      ? "border-ink bg-ink text-on-dark"
-                      : "border-line text-ink hover:border-ink-faint"
-                  }`}
-                >
-                  {v.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         <Button href={quoteHref} variant="accent" size="lg">
           {hasVariants ? "Request Quote for This Style" : "Request Quote for This Product"}

@@ -185,7 +185,11 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   pill already shown as selected) instead of opening on the plain Featured
   Image — no style/finish is pre-selected now; picking one swaps the photo,
   same as a color swatch. Also capped the main product photo's height
-  (`max-h-[75vh]`) so it can't bleed past the viewport on short/wide screens.
+  (`max-h-[55vh]`) so it can't bleed past the viewport on short/wide screens,
+  and moved the Style/Finish selector to sit directly under the photo/
+  thumbnails (was previously in the right-hand info column, far from the
+  photo it actually controls) — verified on both desktop and phone-size
+  viewports.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a
