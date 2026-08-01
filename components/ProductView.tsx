@@ -48,12 +48,15 @@ export default function ProductView({
   featuredImage,
   compact = false,
 }: Props) {
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const hasVariants = variants.length > 0;
-  const active = hasVariants ? variants[selected] : undefined;
+  // No style/finish is pre-selected — the page opens on the plain Featured
+  // Image, and only swaps to a variant's own photo once the shopper actually
+  // picks one, the same way a color swatch works.
+  const active = hasVariants && selected !== null ? variants[selected] : undefined;
 
   const detailImages = images.map((img) => img.imageUrl);
   const galleryImages: string[] = active?.imageUrl
@@ -97,7 +100,7 @@ export default function ProductView({
     >
       <div className="min-w-0">
         <div
-          className={`relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-line ${
+          className={`relative aspect-[4/5] w-full max-h-[75vh] overflow-hidden rounded-2xl border border-line ${
             !compact && displayImageUrl ? "cursor-zoom-in" : ""
           }`}
         >
@@ -116,7 +119,7 @@ export default function ProductView({
             style={
               displayImageUrl
                 ? { backgroundImage: `url(${displayImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
-                : { background: fallbackGradients[selected % fallbackGradients.length] }
+                : { background: fallbackGradients[(selected ?? 0) % fallbackGradients.length] }
             }
           >
             {!displayImageUrl && `${productName}${active ? " — " + active.name : ""} photo`}
@@ -179,7 +182,7 @@ export default function ProductView({
         {hasVariants && (
           <div className="mb-8">
             <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
-              Style / Finish — {active!.name}
+              Style / Finish{active ? ` — ${active.name}` : ""}
             </span>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style or finish">
               {variants.map((v, i) => (

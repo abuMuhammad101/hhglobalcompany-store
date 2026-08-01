@@ -181,6 +181,11 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   re-encode every photo to WebP client-side before upload (capped at 1920px on
   the long edge, GIFs left untouched to preserve animation), and show a clear
   message if a file is still rejected as too large
+- ✅ Fixed the product page defaulting to a variant's photo (with that variant's
+  pill already shown as selected) instead of opening on the plain Featured
+  Image — no style/finish is pre-selected now; picking one swaps the photo,
+  same as a color swatch. Also capped the main product photo's height
+  (`max-h-[75vh]`) so it can't bleed past the viewport on short/wide screens.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a
