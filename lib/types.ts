@@ -18,10 +18,6 @@ export type Product = {
   description: string;
   images: ProductImage[];
   variants: Variant[];
-  /** What to call the variant options on the product page — e.g. "Color" for
-   * a garment, "Style / Finish" for a leather good. Defaults to "Style / Finish"
-   * when not set. */
-  variantLabel?: string;
 };
 
 export type Category = {

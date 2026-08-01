@@ -14,11 +14,9 @@ type Variant = {
 export default function VariantManager({
   productId,
   initialVariants,
-  label = "Style / Finish",
 }: {
   productId: string;
   initialVariants: Variant[];
-  label?: string;
 }) {
   const router = useRouter();
   const [newName, setNewName] = useState("");
@@ -49,7 +47,7 @@ export default function VariantManager({
   }
 
   async function deleteVariant(id: string) {
-    if (!confirm(`Remove this ${label.toLowerCase()} option?`)) return;
+    if (!confirm("Remove this style/finish option?")) return;
     const res = await fetch(`/api/admin/variants/${id}`, { method: "DELETE" });
     if (!res.ok) {
       alert("Couldn't remove that option — please try again.");
@@ -60,11 +58,11 @@ export default function VariantManager({
 
   return (
     <div>
-      <h2 className="text-lg font-medium mb-1">{label} Options</h2>
+      <h2 className="text-lg font-medium mb-1">Styles / Finishes</h2>
       <p className="text-sm text-ink-muted mb-5">
-        These appear as clickable {label.toLowerCase()} options on the product page —
-        clicking one swaps the product photo, exactly like a color swatch on a retail
-        store. Changes save automatically.
+        These appear as clickable options on the product page — clicking one swaps the
+        product photo, exactly like a color swatch on a retail store. Changes save
+        automatically.
       </p>
 
       {initialVariants.length > 0 && (
@@ -84,7 +82,7 @@ export default function VariantManager({
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder={`${label} name, e.g. ${label.toLowerCase() === "color" ? "Brown" : "Plated"}`}
+            placeholder="Style/finish name, e.g. Plated"
             className="flex-1 text-sm border border-line rounded px-3 py-2 focus:border-ink focus:outline-none"
           />
           <button

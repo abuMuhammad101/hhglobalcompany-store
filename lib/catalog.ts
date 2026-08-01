@@ -20,7 +20,7 @@ export async function getCatalog(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
     .select(
-      "id, slug, name, catalogue_number, description, image_url, sort_order, products(id, slug, name, type, material, description, variant_label, sort_order, product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order))"
+      "id, slug, name, catalogue_number, description, image_url, sort_order, products(id, slug, name, type, material, description, sort_order, product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order))"
     )
     .order("sort_order");
 
@@ -46,7 +46,6 @@ export async function getCatalog(): Promise<Category[]> {
           type: string;
           material: string | null;
           description: string | null;
-          variant_label: string | null;
           product_variants: { id: string; name: string; image_url: string | null; sort_order: number }[];
           product_images: { id: string; image_url: string; sort_order: number }[];
         }) => ({
@@ -56,7 +55,6 @@ export async function getCatalog(): Promise<Category[]> {
           type: p.type,
           material: p.material ?? "",
           description: p.description ?? "",
-          variantLabel: p.variant_label ?? undefined,
           images: (p.product_images ?? [])
             .slice()
             .sort((a, b) => a.sort_order - b.sort_order)

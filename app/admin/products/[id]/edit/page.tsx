@@ -32,7 +32,7 @@ export default async function EditProductPage({
     supabase
       .from("products")
       .select(
-        "id, category_id, name, slug, type, material, description, variant_label, categories(name), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order)"
+        "id, category_id, name, slug, type, material, description, categories(name), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order)"
       )
       .eq("id", id)
       .single(),
@@ -76,7 +76,6 @@ export default async function EditProductPage({
           <div className="border-t border-line mt-10 pt-10">
             <VariantManager
               productId={product.id}
-              label={product.variant_label || "Style / Finish"}
               initialVariants={variants.map((v: { id: string; name: string; image_url: string | null; sort_order: number }) => ({
                 id: v.id,
                 name: v.name,
@@ -98,7 +97,6 @@ export default async function EditProductPage({
               productName={product.name}
               productType={product.type}
               description={product.description}
-              variantLabel={product.variant_label || undefined}
               images={images.map((img: { id: string; image_url: string }) => ({
                 id: img.id,
                 imageUrl: img.image_url,

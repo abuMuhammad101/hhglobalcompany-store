@@ -9,8 +9,7 @@ code changes should be made by Claude, explained in plain language, no jargon
 assumed.
 
 ## Product catalog
-- **Garments**: T-Shirt, Sweat Shirt, Sweat Pants, Hoodies (no variants seeded yet —
-  the variant system supports adding them, e.g. colors for a jacket, see Architecture)
+- **Garments**: T-Shirt, Sweat Shirt, Sweat Pants, Hoodies (no style/finish variants)
 - **Leather Products**: Long Wallets (Plain/Mild/Unisex Mild/Plated), Ladies
   Clutches (Small/Regular/Zipper), Card Holder (Plated/Mild/Plain), Men's Wallet
   (5 styles), Men's Belt (Mild)
@@ -76,9 +75,7 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   logo/brand name, `hero_slides`), `schema-page-content.sql` (`page_content`
   JSONB-per-group table for site copy), `schema-quote-items.sql` (`quote_items`
   table for multi-product quotes + a second, public `quote-uploads` storage
-  bucket), `schema-variant-label.sql` (`products.variant_label`, nullable —
-  lets a product override what its variant options are called, see below).
-  Follow this pattern for future schema changes too.
+  bucket). Follow this pattern for future schema changes too.
 - `lib/catalog.ts`, `lib/settings.ts`, `lib/hero.ts`, `lib/content.ts` — async data
   getters, each: try Supabase, fall back to a JSON file in `data/` on no
   connection or query error. `lib/content.ts` also exports `paragraphs()`, a
@@ -116,15 +113,8 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
     stacked with a thumbnail per attached reference photo. Pre-migration
     single-product quotes still display via a legacy-column fallback.
   - **Products** — full CRUD, a full reorderable photo gallery per product
-    (`components/admin/ProductGalleryManager.tsx`), variants — each with their
-    own photo — for style/finish or color options (`components/admin/VariantManager.tsx`),
-    live preview. Every product has both a gallery (detail photos of the
-    product) and variants (one photo per selectable option, e.g. a jacket's
-    Black/Grey/Brown/Green) — these are separate, independent features that
-    both existed from early on; only the **label** shown for the variant group
-    is configurable per product (`products.variant_label`, e.g. "Color" vs.
-    the default "Style / Finish") since different product types call their
-    options different things.
+    (`components/admin/ProductGalleryManager.tsx`), variants (styles/finishes)
+    each with their own photo, live preview.
   - **Categories** — name/description + a cover photo.
   - **Media** — site logo + brand name (`components/admin/LogoManager.tsx`,
     writes to `site_settings`), and the homepage hero carousel — unlimited
@@ -165,10 +155,6 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   panel, numbered items, restyled inputs, upload icon/preview), and a
   redesigned product detail page (fixed the unframed/"bleeding" main photo,
   added a Details card and related-products section)
-- ✅ Per-product variant label: any product's variant group (previously always
-  labeled "Style / Finish") can be relabeled per product — e.g. "Color" for a
-  garment with color options — from the Variant Option Label field in
-  `/admin/products/[id]/edit`
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a
