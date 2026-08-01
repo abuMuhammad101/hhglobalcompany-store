@@ -11,7 +11,8 @@ const gradients = [
 ];
 
 export default function ProductCard({ product, index }: { product: Product; index: number }) {
-  const coverImageUrl = product.images[0]?.imageUrl ?? product.variants.find((v) => v.imageUrl)?.imageUrl ?? null;
+  const coverImageUrl =
+    product.imageUrl ?? product.images[0]?.imageUrl ?? product.variants.find((v) => v.imageUrl)?.imageUrl ?? null;
   const styleCount = product.variants.length;
 
   return (

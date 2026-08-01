@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getSupabase } from "@/lib/supabase";
 import ProductForm from "@/components/admin/ProductForm";
 import VariantManager from "@/components/admin/VariantManager";
+import FeaturedImageManager from "@/components/admin/FeaturedImageManager";
 import ProductGalleryManager from "@/components/admin/ProductGalleryManager";
 import ProductView from "@/components/ProductView";
 import Breadcrumb from "@/components/admin/Breadcrumb";
@@ -32,7 +33,7 @@ export default async function EditProductPage({
     supabase
       .from("products")
       .select(
-        "id, category_id, name, slug, type, material, description, categories(name), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order)"
+        "id, category_id, name, slug, type, material, description, image_url, categories(name), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order)"
       )
       .eq("id", id)
       .single(),
@@ -61,6 +62,10 @@ export default async function EditProductPage({
         <div>
           <h1 className="text-2xl mb-8">Edit Product</h1>
           <ProductForm categories={categories ?? []} initial={product} />
+
+          <div className="border-t border-line mt-10 pt-10">
+            <FeaturedImageManager productId={product.id} initialImageUrl={product.image_url} />
+          </div>
 
           <div className="border-t border-line mt-10 pt-10">
             <ProductGalleryManager
@@ -97,6 +102,7 @@ export default async function EditProductPage({
               productName={product.name}
               productType={product.type}
               description={product.description}
+              featuredImage={product.image_url}
               images={images.map((img: { id: string; image_url: string }) => ({
                 id: img.id,
                 imageUrl: img.image_url,

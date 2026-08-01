@@ -79,10 +79,11 @@ export default function ProductGalleryManager({
 
   return (
     <div>
-      <h2 className="text-lg font-medium mb-1">Photos</h2>
+      <h2 className="text-lg font-medium mb-1">Detail Photos</h2>
       <p className="text-sm text-ink-muted mb-5">
-        Shown to customers as a gallery on the product page. The first photo is used as the
-        cover everywhere else (shop pages, product listings) — use the arrows to reorder.
+        Additional photos showing the product's details — shown to customers as a
+        gallery on the product page, alongside the featured image above. Use the
+        arrows to reorder.
       </p>
 
       {images.length > 0 && (
@@ -93,11 +94,6 @@ export default function ProductGalleryManager({
                 className="aspect-square rounded border border-line bg-bg-soft bg-cover bg-center"
                 style={{ backgroundImage: `url(${img.image_url})` }}
               />
-              {i === 0 && (
-                <span className="absolute top-1.5 left-1.5 bg-ink text-on-dark text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded">
-                  Cover
-                </span>
-              )}
               <div className="flex items-center justify-between mt-1.5">
                 <div className="flex items-center gap-1">
                   <button

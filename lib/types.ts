@@ -16,6 +16,10 @@ export type Product = {
   type: string;
   material: string;
   description: string;
+  /** The single featured/cover photo — shown on shop pages, product listings,
+   * and as the main product page photo. Separate from `images`, the detail
+   * gallery. */
+  imageUrl?: string | null;
   images: ProductImage[];
   variants: Variant[];
 };

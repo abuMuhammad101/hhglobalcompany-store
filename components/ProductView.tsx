@@ -22,6 +22,7 @@ type Props = {
   material?: string;
   variants: Variant[];
   images: ProductImage[];
+  featuredImage?: string | null;
   compact?: boolean;
 };
 
@@ -44,6 +45,7 @@ export default function ProductView({
   material,
   variants,
   images,
+  featuredImage,
   compact = false,
 }: Props) {
   const [selected, setSelected] = useState(0);
@@ -53,9 +55,10 @@ export default function ProductView({
   const hasVariants = variants.length > 0;
   const active = hasVariants ? variants[selected] : undefined;
 
+  const detailImages = images.map((img) => img.imageUrl);
   const galleryImages: string[] = active?.imageUrl
-    ? [active.imageUrl, ...images.map((img) => img.imageUrl)]
-    : images.map((img) => img.imageUrl);
+    ? [active.imageUrl, ...detailImages]
+    : ([featuredImage, ...detailImages].filter(Boolean) as string[]);
   const hasGallery = galleryImages.length > 1;
   const displayImageUrl = galleryImages[activeIndex] ?? null;
 

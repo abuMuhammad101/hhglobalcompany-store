@@ -76,6 +76,17 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   JSONB-per-group table for site copy), `schema-quote-items.sql` (`quote_items`
   table for multi-product quotes + a second, public `quote-uploads` storage
   bucket). Follow this pattern for future schema changes too.
+- Every product has **three independent photo surfaces**, each with its own
+  admin manager component: a single **Featured Image** (`products.image_url`,
+  `components/admin/FeaturedImageManager.tsx` → `PATCH /api/admin/products/[id]/image`)
+  used as the cover on shop pages/listings and the main product-page photo; a
+  **Detail Photos** gallery (`product_images` table, `ProductGalleryManager.tsx`)
+  of additional spec/detail shots; and **Style/Finish variants**
+  (`product_variants` table, `VariantManager.tsx`) — one photo per named
+  option (e.g. Plain/Mild/Plated) that swaps the main photo when clicked, like
+  a color swatch. `ProductView.tsx` composes the customer-facing gallery as
+  `[active variant photo, ...detail photos]` when the product has variants, or
+  `[featured image, ...detail photos]` when it doesn't.
 - `lib/catalog.ts`, `lib/settings.ts`, `lib/hero.ts`, `lib/content.ts` — async data
   getters, each: try Supabase, fall back to a JSON file in `data/` on no
   connection or query error. `lib/content.ts` also exports `paragraphs()`, a
@@ -112,9 +123,9 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
     filters, autosaving notes. Each request can list several products; shown
     stacked with a thumbnail per attached reference photo. Pre-migration
     single-product quotes still display via a legacy-column fallback.
-  - **Products** — full CRUD, a full reorderable photo gallery per product
-    (`components/admin/ProductGalleryManager.tsx`), variants (styles/finishes)
-    each with their own photo, live preview.
+  - **Products** — full CRUD, a featured image, a full reorderable detail-photo
+    gallery per product (`components/admin/ProductGalleryManager.tsx`), variants
+    (styles/finishes) each with their own photo, live preview.
   - **Categories** — name/description + a cover photo.
   - **Media** — site logo + brand name (`components/admin/LogoManager.tsx`,
     writes to `site_settings`), and the homepage hero carousel — unlimited
@@ -155,6 +166,10 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   panel, numbered items, restyled inputs, upload icon/preview), and a
   redesigned product detail page (fixed the unframed/"bleeding" main photo,
   added a Details card and related-products section)
+- ✅ Product photos split into three explicit admin sections: Featured Image
+  (single cover photo), Detail Photos (reorderable gallery), and Style/Finish
+  variants (one photo per option) — previously the gallery's first photo
+  implicitly served as the cover; now there's a dedicated field for it
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a
