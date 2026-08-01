@@ -29,10 +29,45 @@ export default function ImageUploader({
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
 
+  // Phone photos routinely come in at 5-12MB, well past the ~4.5MB request-body
+  // limit our hosting platform enforces in front of the upload route — that
+  // rejection happens before our own route ever runs, as a bare non-JSON 413,
+  // so shrinking oversized photos here is what keeps a normal phone photo
+  // uploadable at all rather than relying on a friendlier error message.
+  const MAX_DIMENSION = 1920;
+  const COMPRESS_ABOVE_BYTES = 1.5 * 1024 * 1024;
+  const JPEG_QUALITY = 0.85;
+
+  async function compressImage(file: File): Promise<File> {
+    if (file.type === "image/gif" || file.size <= COMPRESS_ABOVE_BYTES) return file;
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+      const width = Math.round(bitmap.width * scale);
+      const height = Math.round(bitmap.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return file;
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY));
+      if (!blob || blob.size >= file.size) return file;
+      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+      return new File([blob], name, { type: "image/jpeg" });
+    } catch {
+      return file;
+    }
+  }
+
   async function uploadOne(file: File): Promise<string> {
+    const upload = await compressImage(file);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", upload);
     const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+    if (res.status === 413) {
+      throw new Error("That photo is too large — try a smaller photo or resize it before uploading.");
+    }
     const body = await res.json().catch(() => ({}));
     if (!res.ok || !body.ok) throw new Error(body.error || "Upload failed.");
     return body.url as string;
@@ -53,17 +88,24 @@ export default function ImageUploader({
   async function handleFiles(files: FileList) {
     setError("");
     setUploading(true);
-    try {
-      const urls: string[] = [];
-      for (const file of Array.from(files)) {
+    const urls: string[] = [];
+    const failures: string[] = [];
+    for (const file of Array.from(files)) {
+      try {
         urls.push(await uploadOne(file));
+      } catch (err) {
+        failures.push(err instanceof Error ? err.message : "Upload failed.");
       }
-      onAddMultiple?.(urls);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.");
-    } finally {
-      setUploading(false);
     }
+    if (urls.length > 0) onAddMultiple?.(urls);
+    if (failures.length > 0) {
+      setError(
+        urls.length > 0
+          ? `${failures.length} of ${files.length} photos couldn't be uploaded (${failures[0]}) — the rest were added.`
+          : failures[0]
+      );
+    }
+    setUploading(false);
   }
 
   function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {

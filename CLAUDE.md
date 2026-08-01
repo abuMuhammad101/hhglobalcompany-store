@@ -170,6 +170,16 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   (single cover photo), Detail Photos (reorderable gallery), and Style/Finish
   variants (one photo per option) — previously the gallery's first photo
   implicitly served as the cover; now there's a dedicated field for it
+- ✅ Detail Photos and Hero Slides admin uploaders support selecting multiple
+  photos at once; admin nav bar and product live-preview panel no longer
+  overflow horizontally on narrow screens; Hero Slide Manager now shows newly
+  added slides immediately instead of requiring a page reload
+- ✅ Fixed large phone photos (routinely 5-12MB) failing to upload with a
+  generic "Upload failed." message — they were silently hitting the hosting
+  platform's ~4.5MB request-size limit before ever reaching our own code. Both
+  upload pipelines (admin `ImageUploader`, quote-form `QuoteImageUploader`) now
+  resize/compress oversized photos client-side before upload, and show a clear
+  message if a file is still rejected as too large
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a
