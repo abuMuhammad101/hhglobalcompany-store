@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getCatalog } from "@/lib/catalog";
 import { getQuoteContent } from "@/lib/content";
 import QuoteForm from "@/components/QuoteForm";
+import Reveal from "@/components/Reveal";
 
 export const revalidate = 60;
 
@@ -36,7 +37,7 @@ export default async function QuotePage({
   return (
     <main className="py-16">
       <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-[0.8fr_1.2fr] gap-12">
-        <div>
+        <Reveal direction="left">
           <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">
             {content.intro.eyebrow}
           </span>
@@ -46,14 +47,16 @@ export default async function QuotePage({
           <p className="text-ink-muted max-w-[42ch] text-[15px]">
             {content.intro.body}
           </p>
-        </div>
+        </Reveal>
 
-        <QuoteForm
-          catalog={catalog}
-          presetCategory={presetCategory}
-          presetProductType={presetProductType}
-          presetVariant={variant}
-        />
+        <Reveal direction="right" delay={150}>
+          <QuoteForm
+            catalog={catalog}
+            presetCategory={presetCategory}
+            presetProductType={presetProductType}
+            presetVariant={variant}
+          />
+        </Reveal>
       </div>
     </main>
   );

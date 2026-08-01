@@ -54,3 +54,13 @@ body {
   height: 3px;
   background: var(--ink);
 }
+
+/* Reveal-on-scroll (components/Reveal.tsx): skip the animation entirely for
+   reduced-motion users, so content is just there rather than sliding in. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-init {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

@@ -55,6 +55,16 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   `components/ArrowBadge.tsx` is the matching circular arrow-icon badge
   (`ink`/`accent` tone). Admin panel buttons (`components/admin/**`) are a
   separate, intentionally untouched surface — not part of this system.
+- `components/Reveal.tsx` is the site-wide slide-in-on-scroll wrapper — hidden/
+  offset until it enters the viewport (IntersectionObserver, fires once), then
+  transitions to resting position. Props: `direction` (`up`/`left`/`right`,
+  default `up`), `delay` (ms, for staggering items in a grid), `className`.
+  Wraps section content and individual grid items (product cards, stat cards,
+  offer cards) across every public page — reuse it for any new section rather
+  than hand-rolling scroll animations. No-op under `prefers-reduced-motion`
+  (see `.reveal-init` rule in `app/globals.css`) and under no-JS (see the
+  `<noscript>` style in `app/layout.tsx`) — both keep content simply visible
+  rather than stuck hidden. Not used in the admin panel.
 
 ## Tech stack
 - Next.js 16 (App Router), Tailwind CSS v4
@@ -192,6 +202,13 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   viewports. The full-screen lightbox now also includes its own copy of the
   thumbnail strip and Style/Finish pills, so a shopper can switch photos or
   styles without leaving zoomed-in view.
+- ✅ Sleek slide-in-on-scroll animations added across the whole public
+  storefront (`components/Reveal.tsx`) — hero copy/carousel, About/story/
+  offer/stats sections, category tiles, every product grid (staggered per
+  card), process steps, CTAs, the product detail view, and Terms sections all
+  animate in as the page loads or as the visitor scrolls to them. Respects
+  `prefers-reduced-motion` and degrades gracefully with no JS. Admin panel
+  intentionally untouched.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a

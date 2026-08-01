@@ -40,6 +40,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${archivo.variable} ${spaceMono.variable} antialiased`}>
+        <noscript>
+          <style>{`.reveal-init { opacity: 1 !important; transform: none !important; }`}</style>
+        </noscript>
         <script
           type="application/ld+json"
           // Organization schema — this is part of what makes the site legible to LLM answer engines,

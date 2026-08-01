@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTermsContent, paragraphs } from "@/lib/content";
 import Button from "@/components/Button";
+import Reveal from "@/components/Reveal";
 
 export const revalidate = 60;
 
@@ -16,13 +17,15 @@ export default async function TermsPage() {
   return (
     <main className="py-16">
       <div className="max-w-[1320px] mx-auto px-6">
-        <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">{content.eyebrow}</span>
-        <h1 className="text-[clamp(32px,5vw,52px)] font-medium tracking-tight mb-4 max-w-[18ch]">
-          {content.heading}
-        </h1>
-        <p className="text-ink-muted max-w-[60ch] mb-14 text-[15px] leading-relaxed">
-          {content.intro}
-        </p>
+        <Reveal>
+          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">{content.eyebrow}</span>
+          <h1 className="text-[clamp(32px,5vw,52px)] font-medium tracking-tight mb-4 max-w-[18ch]">
+            {content.heading}
+          </h1>
+          <p className="text-ink-muted max-w-[60ch] mb-14 text-[15px] leading-relaxed">
+            {content.intro}
+          </p>
+        </Reveal>
 
         <div className="grid lg:grid-cols-[220px_1fr] gap-10 lg:gap-16">
           <nav aria-label="Sections" className="hidden lg:block">
@@ -43,21 +46,23 @@ export default async function TermsPage() {
           <div className="space-y-16 max-w-[68ch]">
             {content.sections.map((s) => (
               <section key={s.id} id={s.id} className="scroll-mt-24">
-                <h2 className="text-[clamp(22px,3vw,28px)] font-medium tracking-tight mb-6">
-                  {s.heading}
-                </h2>
-                {s.factCards.length > 0 && (
-                  <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                    {s.factCards.map((f) => (
-                      <FactCard key={f.label} num={f.num} label={f.label} />
+                <Reveal>
+                  <h2 className="text-[clamp(22px,3vw,28px)] font-medium tracking-tight mb-6">
+                    {s.heading}
+                  </h2>
+                  {s.factCards.length > 0 && (
+                    <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                      {s.factCards.map((f) => (
+                        <FactCard key={f.label} num={f.num} label={f.label} />
+                      ))}
+                    </div>
+                  )}
+                  <div className="text-ink-muted space-y-4 text-[15px] leading-relaxed">
+                    {paragraphs(s.body).map((p, i) => (
+                      <p key={i}>{p}</p>
                     ))}
                   </div>
-                )}
-                <div className="text-ink-muted space-y-4 text-[15px] leading-relaxed">
-                  {paragraphs(s.body).map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
-                </div>
+                </Reveal>
               </section>
             ))}
 
