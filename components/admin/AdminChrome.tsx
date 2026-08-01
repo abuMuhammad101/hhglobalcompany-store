@@ -29,18 +29,18 @@ export default function AdminChrome({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen">
       <div className="border-b border-line">
-        <div className="max-w-[1200px] mx-auto px-6 flex items-center gap-8 h-[60px]">
-          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted">
+        <div className="max-w-[1200px] mx-auto px-6 flex items-center gap-8 h-[60px] overflow-x-auto">
+          <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted shrink-0">
             Admin
           </span>
-          <nav className="flex gap-6">
+          <nav className="flex gap-6 shrink-0">
             {NAV.map((item) => {
               const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors ${
+                  className={`text-sm font-medium transition-colors whitespace-nowrap ${
                     active ? "text-ink" : "text-ink-muted hover:text-ink"
                   }`}
                 >
@@ -49,14 +49,14 @@ export default function AdminChrome({ children }: { children: React.ReactNode })
               );
             })}
           </nav>
-          <div className="ml-auto flex items-center gap-5">
-            <Link href="/" className="text-xs text-ink-muted hover:text-ink">
+          <div className="ml-auto flex items-center gap-5 shrink-0">
+            <Link href="/" className="text-xs text-ink-muted hover:text-ink whitespace-nowrap">
               &larr; Back to site
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="text-xs text-ink-muted hover:text-red-700"
+              className="text-xs text-ink-muted hover:text-red-700 whitespace-nowrap"
             >
               Log out
             </button>

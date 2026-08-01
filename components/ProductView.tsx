@@ -91,13 +91,13 @@ export default function ProductView({
     <div
       className={
         compact
-          ? "grid grid-cols-1 gap-6"
+          ? "grid grid-cols-1 gap-6 min-w-0"
           : "max-w-[1320px] mx-auto px-6 grid lg:grid-cols-2 gap-10"
       }
     >
-      <div>
+      <div className="min-w-0">
         <div
-          className={`relative aspect-[4/5] overflow-hidden rounded-2xl border border-line ${
+          className={`relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-line ${
             !compact && displayImageUrl ? "cursor-zoom-in" : ""
           }`}
         >
@@ -149,7 +149,7 @@ export default function ProductView({
         )}
       </div>
 
-      <div>
+      <div className="min-w-0">
         {!compact && categoryHref ? (
           <nav aria-label="Breadcrumb" className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 flex items-center gap-2">
             <Link href={categoryHref} className="inline-flex items-center gap-1.5 hover:text-ink">
@@ -166,8 +166,8 @@ export default function ProductView({
             {categoryName} / {productType}
           </span>
         )}
-        <h1 className="text-[clamp(28px,4vw,44px)] font-medium tracking-tight mb-4">{productName}</h1>
-        <p className="text-ink-muted max-w-[50ch] mb-8">{description}</p>
+        <h1 className="text-[clamp(28px,4vw,44px)] font-medium tracking-tight mb-4 break-words">{productName}</h1>
+        <p className="text-ink-muted max-w-[50ch] mb-8 break-words">{description}</p>
 
         <div className="border border-line rounded-2xl p-6 mb-8 grid grid-cols-2 gap-x-6 gap-y-4">
           <DetailRow label="Category" value={categoryName} />
@@ -251,9 +251,9 @@ export default function ProductView({
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div>
+    <div className="min-w-0">
       <div className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-faint mb-1">{label}</div>
-      <div className="text-[14px] text-ink font-medium">{value}</div>
+      <div className="text-[14px] text-ink font-medium break-words">{value}</div>
     </div>
   );
 }

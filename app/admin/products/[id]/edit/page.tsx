@@ -59,7 +59,7 @@ export default async function EditProductPage({
         <Breadcrumb items={[{ label: "Products", href: "/admin/products" }, { label: product.name }]} />
       </div>
       <div className="max-w-[1200px] mx-auto px-6 grid lg:grid-cols-2 gap-12">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl mb-8">Edit Product</h1>
           <ProductForm categories={categories ?? []} initial={product} />
 
@@ -91,11 +91,11 @@ export default async function EditProductPage({
           </div>
         </div>
 
-        <div>
+        <div className="min-w-0">
           <span className="block text-xs font-medium uppercase tracking-wide text-ink-muted mb-4">
             Live preview — exactly what customers see
           </span>
-          <div className="border border-line rounded-lg p-6 sticky top-24">
+          <div className="border border-line rounded-lg p-6 sticky top-24 overflow-hidden">
             <ProductView
               compact
               categoryName={categoryName}
