@@ -15,13 +15,48 @@ export default function QuoteImageUploader({ value, onChange, label, hint }: Pro
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
 
+  // Phone photos routinely come in at 5-12MB, well past the ~4.5MB
+  // request-body limit our hosting platform enforces in front of the upload
+  // route — that rejection happens before our own route ever runs, as a bare
+  // non-JSON 413, so shrinking oversized photos here is what keeps a normal
+  // phone reference photo uploadable at all.
+  const MAX_DIMENSION = 1920;
+  const COMPRESS_ABOVE_BYTES = 1.5 * 1024 * 1024;
+  const JPEG_QUALITY = 0.85;
+
+  async function compressImage(file: File): Promise<File> {
+    if (file.type === "image/gif" || file.size <= COMPRESS_ABOVE_BYTES) return file;
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+      const width = Math.round(bitmap.width * scale);
+      const height = Math.round(bitmap.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return file;
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY));
+      if (!blob || blob.size >= file.size) return file;
+      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+      return new File([blob], name, { type: "image/jpeg" });
+    } catch {
+      return file;
+    }
+  }
+
   async function handleFile(file: File) {
     setError("");
     setUploading(true);
     try {
+      const upload = await compressImage(file);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", upload);
       const res = await fetch("/api/quote/upload", { method: "POST", body: formData });
+      if (res.status === 413) {
+        throw new Error("That photo is too large — try a smaller photo or resize it before uploading.");
+      }
       const body = await res.json().catch(() => ({}));
       if (!res.ok || !body.ok) throw new Error(body.error || "Upload failed.");
       onChange(body.url);
