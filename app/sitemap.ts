@@ -1,11 +1,17 @@
 import type { MetadataRoute } from "next";
-import { getAllProducts } from "@/lib/catalog";
+import { getCatalog, getAllProducts } from "@/lib/catalog";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.hhglobalcompany.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPages = ["", "/garments", "/leather", "/quote", "/about", "/contact"].map((path) => ({
+  const staticPages = ["", "/quote", "/about", "/contact", "/terms"].map((path) => ({
     url: `${siteUrl}${path}`,
+    lastModified: new Date(),
+  }));
+
+  const catalog = await getCatalog();
+  const categoryPages = catalog.map((c) => ({
+    url: `${siteUrl}/${c.slug}`,
     lastModified: new Date(),
   }));
 
@@ -15,5 +21,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  return [...staticPages, ...productPages];
+  return [...staticPages, ...categoryPages, ...productPages];
 }

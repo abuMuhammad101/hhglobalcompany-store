@@ -9,10 +9,23 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { categoryId, name, slug, type, material, description } = body;
+  const { categoryId, name, slug, productTypeId, material, description } = body;
 
-  if (!categoryId || !name || !slug || !type) {
+  if (!categoryId || !name || !slug || !productTypeId) {
     return NextResponse.json({ ok: false, error: "Missing required fields." }, { status: 400 });
+  }
+
+  const { data: productType, error: productTypeError } = await supabase
+    .from("product_types")
+    .select("id, name, category_id")
+    .eq("id", productTypeId)
+    .single();
+
+  if (productTypeError || !productType || productType.category_id !== categoryId) {
+    return NextResponse.json(
+      { ok: false, error: "Selected product type doesn't belong to this category." },
+      { status: 400 }
+    );
   }
 
   const { data, error } = await supabase
@@ -21,7 +34,8 @@ export async function POST(req: NextRequest) {
       category_id: categoryId,
       name,
       slug,
-      type,
+      type: productType.name,
+      product_type_id: productType.id,
       material: material || null,
       description: description || null,
     })

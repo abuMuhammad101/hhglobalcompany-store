@@ -28,7 +28,7 @@ export default async function AdminProductsPage() {
   const { data: categories } = await supabase
     .from("categories")
     .select(
-      "id, name, slug, sort_order, products(id, name, slug, type, material, sort_order, product_variants(id), product_images(image_url, sort_order))"
+      "id, name, slug, sort_order, products(id, name, slug, type, material, sort_order, product_types(is_active), product_variants(id), product_images(image_url, sort_order))"
     )
     .order("sort_order");
 
@@ -71,12 +71,14 @@ export default async function AdminProductsPage() {
                         slug: string;
                         type: string;
                         material: string;
+                        product_types: { is_active: boolean } | { is_active: boolean }[] | null;
                         product_variants: unknown[];
                         product_images: { image_url: string; sort_order: number }[];
                       }) => {
                         const coverImageUrl = (p.product_images ?? [])
                           .slice()
                           .sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url;
+                        const productType = Array.isArray(p.product_types) ? p.product_types[0] : p.product_types;
                         return (
                         <tr key={p.id} className="border-b border-line last:border-b-0">
                           <td className="py-2.5 px-4">
@@ -86,7 +88,12 @@ export default async function AdminProductsPage() {
                             />
                           </td>
                           <td className="py-2.5 px-4">{p.name}</td>
-                          <td className="py-2.5 px-4 text-ink-muted">{p.type}</td>
+                          <td className="py-2.5 px-4 text-ink-muted">
+                            {p.type}
+                            {productType?.is_active === false && (
+                              <span className="text-red-700"> (type disabled)</span>
+                            )}
+                          </td>
                           <td className="py-2.5 px-4 text-ink-muted">{p.material}</td>
                           <td className="py-2.5 px-4 text-ink-muted">{p.product_variants?.length ?? 0}</td>
                           <td className="py-2.5 px-4 text-right whitespace-nowrap">

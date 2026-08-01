@@ -12,13 +12,24 @@ function navLinkClass(active: boolean) {
   ].join(" ");
 }
 
-export default function Header({ logoUrl, brandName }: { logoUrl?: string | null; brandName: string }) {
+type NavCategory = { slug: string; name: string };
+
+export default function Header({
+  logoUrl,
+  brandName,
+  categories,
+}: {
+  logoUrl?: string | null;
+  brandName: string;
+  categories: NavCategory[];
+}) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
   const logoSrc = logoUrl || "/logo.jpg";
 
-  const productActive = pathname.startsWith("/garments") || pathname.startsWith("/leather") || pathname.startsWith("/product");
+  const productActive =
+    pathname.startsWith("/product") || categories.some((c) => pathname.startsWith(`/${c.slug}`));
   const aboutActive = pathname.startsWith("/about");
   const quoteActive = pathname.startsWith("/quote");
 
@@ -52,8 +63,15 @@ export default function Header({ logoUrl, brandName }: { logoUrl?: string | null
               {productOpen && (
                 <div className="absolute top-full left-0 pt-3">
                   <div className="bg-bg border border-line rounded-lg shadow-lg py-2 min-w-[200px]">
-                    <Link href="/garments" className="block px-4 py-2.5 text-[15px] font-medium hover:bg-bg-soft">Garments</Link>
-                    <Link href="/leather" className="block px-4 py-2.5 text-[15px] font-medium hover:bg-bg-soft">Leather Products</Link>
+                    {categories.map((c) => (
+                      <Link
+                        key={c.slug}
+                        href={`/${c.slug}`}
+                        className="block px-4 py-2.5 text-[15px] font-medium hover:bg-bg-soft"
+                      >
+                        {c.name}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               )}
@@ -86,8 +104,16 @@ export default function Header({ logoUrl, brandName }: { logoUrl?: string | null
       {menuOpen && (
         <div className="lg:hidden border-t border-line px-6 py-5">
           <span className="block pt-2 pb-1 font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted">Product</span>
-          <Link href="/garments" className="block py-3 pl-3 border-b border-line font-medium text-[15px]" onClick={() => setMenuOpen(false)}>Garments</Link>
-          <Link href="/leather" className="block py-3 pl-3 border-b border-line font-medium text-[15px]" onClick={() => setMenuOpen(false)}>Leather Products</Link>
+          {categories.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/${c.slug}`}
+              className="block py-3 pl-3 border-b border-line font-medium text-[15px]"
+              onClick={() => setMenuOpen(false)}
+            >
+              {c.name}
+            </Link>
+          ))}
           <Link href="/about" className="block py-3 border-b border-line font-medium text-[15px]" onClick={() => setMenuOpen(false)}>About</Link>
           <Link href="/quote" className="block py-3 border-b border-line font-medium text-[15px]" onClick={() => setMenuOpen(false)}>Request Quote</Link>
           <Button href="/contact" size="lg" className="mt-5 w-full">

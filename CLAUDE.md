@@ -85,7 +85,9 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   logo/brand name, `hero_slides`), `schema-page-content.sql` (`page_content`
   JSONB-per-group table for site copy), `schema-quote-items.sql` (`quote_items`
   table for multi-product quotes + a second, public `quote-uploads` storage
-  bucket). Follow this pattern for future schema changes too.
+  bucket), `schema-category-hierarchy.sql` (`categories.is_active`, and a new
+  `product_types` table — see the Categories bullet below). Follow this pattern
+  for future schema changes too.
 - Every product has **three independent photo surfaces**, each with its own
   admin manager component: a single **Featured Image** (`products.image_url`,
   `components/admin/FeaturedImageManager.tsx` → `PATCH /api/admin/products/[id]/image`)
@@ -136,7 +138,24 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   - **Products** — full CRUD, a featured image, a full reorderable detail-photo
     gallery per product (`components/admin/ProductGalleryManager.tsx`), variants
     (styles/finishes) each with their own photo, live preview.
-  - **Categories** — name/description + a cover photo.
+  - **Categories** (`components/admin/CategoryManager.tsx` + `CategoryEditForm.tsx`)
+    — full CRUD: add a new category (name, URL slug, catalogue number), reorder,
+    disable/re-enable, edit name/slug/catalogue-number/description/cover photo,
+    and delete (blocked with a clear message while it still has products — disable
+    is the everyday way to retire one). Each category also manages its own
+    **Product Types** inline (`ProductTypeManager.tsx`) — the tag every product
+    picks (e.g. "T-Shirt", "Long Wallets"): add/rename/reorder/disable/delete,
+    mirroring the category-level pattern. `products.product_type_id` is the real
+    FK; `products.type` is kept as a synced plain-text mirror so every existing
+    read path (`ProductCard`, `ProductView`, `QuoteForm`, breadcrumbs, JSON-LD)
+    needs zero changes. A disabled category or product type is fully hidden on
+    the public site (nav, homepage, quote form, and its pages 404) — `lib/catalog.ts`'s
+    `getCatalog()` is the single place this filtering happens; admin routes query
+    Supabase directly and always see everything, active or not. Category pages
+    are a dynamic route (`app/(site)/[category]/page.tsx`), not hardcoded static
+    folders, so a newly-added category gets a live page automatically — the
+    homepage, header nav dropdown, and sitemap all loop over the live category
+    list rather than hardcoding "Garments"/"Leather".
   - **Media** — site logo + brand name (`components/admin/LogoManager.tsx`,
     writes to `site_settings`), and the homepage hero carousel — unlimited
     photos (`components/admin/HeroSlideManager.tsx`, `hero_slides` table).
@@ -201,7 +220,14 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   photo it actually controls) — verified on both desktop and phone-size
   viewports. The full-screen lightbox now also includes its own copy of the
   thumbnail strip and Style/Finish pills, so a shopper can switch photos or
-  styles without leaving zoomed-in view.
+  styles without leaving zoomed-in view. The lightbox also has zoom in/out
+  controls (100-300%, +/- buttons or double-click to toggle, resets on photo
+  change) — fixed a real stacking bug along the way where the plain image
+  container div, despite being transparent, painted over the top-left corner
+  controls (any `position: relative`/`absolute` sibling with no explicit
+  `z-index` stacks by DOM order, and the image container came after in markup)
+  and silently ate their clicks; both the close button and the new zoom
+  controls now have `z-10` to guarantee they stay on top.
 - ✅ Sleek slide-in-on-scroll animations added across the whole public
   storefront (`components/Reveal.tsx`) — hero copy/carousel, About/story/
   offer/stats sections, category tiles, every product grid (staggered per
@@ -209,6 +235,20 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   animate in as the page loads or as the visitor scrolls to them. Respects
   `prefers-reduced-motion` and degrades gracefully with no JS. Admin panel
   intentionally untouched.
+- ✅ Admin Category management overhauled: add a new category, disable/re-enable
+  one (fully hidden on the public site while disabled — nav, homepage, quote
+  form, its pages 404), reorder, and delete (blocked while it still has
+  products). "Product Type" (e.g. "T-Shirt", "Long Wallets") promoted from a
+  free-text tag to a real managed hierarchy level with its own admin CRUD
+  (add/rename/reorder/disable/delete), nested under each category. Category
+  pages converted from hardcoded static routes to a dynamic `[category]` route
+  so new categories get a live page automatically; homepage, header nav, and
+  sitemap all became data-driven loops instead of hardcoding "Garments"/
+  "Leather". See `data/schema-category-hierarchy.sql` and the Categories bullet
+  above for the full shape. Known gap: the quote form still matches a Product
+  Type to a single product (`.find()`), so if two products ever share a type
+  it won't let a customer disambiguate between them — pre-existing limitation,
+  not changed by this work.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a

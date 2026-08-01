@@ -18,7 +18,16 @@ export default async function NewProductPage() {
     );
   }
 
-  const { data: categories } = await supabase.from("categories").select("id, name").order("sort_order");
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, name, product_types(id, name, is_active)")
+    .order("sort_order");
+
+  const categoryOptions = (categories ?? []).map((c) => ({
+    id: c.id,
+    name: c.name,
+    productTypes: c.product_types ?? [],
+  }));
 
   return (
     <main className="py-10">
@@ -29,7 +38,7 @@ export default async function NewProductPage() {
           Fill in the details below, then save — you&apos;ll add photos and style/finish options on
           the next screen.
         </p>
-        <ProductForm categories={categories ?? []} />
+        <ProductForm categories={categoryOptions} />
       </div>
     </main>
   );
