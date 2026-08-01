@@ -44,8 +44,7 @@ export default function ProductGalleryManager({
     persistOrder(next);
   }
 
-  async function handleAdd(url: string | null) {
-    if (!url) return;
+  async function addOne(url: string): Promise<boolean> {
     const res = await fetch(`/api/admin/products/${productId}/images`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -57,8 +56,26 @@ export default function ProductGalleryManager({
         ...imgs,
         { id: body.image.id, image_url: body.image.image_url, sort_order: body.image.sort_order },
       ]);
-    } else {
-      alert(body.error || "Couldn't add that photo — please try again.");
+      return true;
+    }
+    return false;
+  }
+
+  async function handleAdd(url: string | null) {
+    if (!url) return;
+    const ok = await addOne(url);
+    if (!ok) alert("Couldn't add that photo — please try again.");
+    setAddKey((k) => k + 1);
+    router.refresh();
+  }
+
+  async function handleAddMultiple(urls: string[]) {
+    let failures = 0;
+    for (const url of urls) {
+      if (!(await addOne(url))) failures += 1;
+    }
+    if (failures > 0) {
+      alert(`${failures} photo${failures > 1 ? "s" : ""} couldn't be added — please try again.`);
     }
     setAddKey((k) => k + 1);
     router.refresh();
@@ -129,7 +146,14 @@ export default function ProductGalleryManager({
         </div>
       )}
 
-      <ImageUploader key={addKey} value={null} onChange={handleAdd} hint="Add a photo" />
+      <ImageUploader
+        key={addKey}
+        value={null}
+        onChange={handleAdd}
+        onAddMultiple={handleAddMultiple}
+        multiple
+        hint="Select multiple photos at once, or add them one at a time"
+      />
     </div>
   );
 }
