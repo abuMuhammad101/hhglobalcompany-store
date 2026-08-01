@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getAllProducts, getProduct } from "@/lib/catalog";
 import ProductView from "@/components/ProductView";
 import ProductCard from "@/components/ProductCard";
+import Reveal from "@/components/Reveal";
 
 export const revalidate = 60;
 
@@ -39,17 +40,19 @@ export default async function ProductPage({
 
   return (
     <main className="py-16">
-      <ProductView
-        categoryName={category.name}
-        categoryHref={`/${category.slug}`}
-        productName={product.name}
-        productType={product.type}
-        description={product.description}
-        material={product.material}
-        variants={product.variants}
-        images={product.images}
-        featuredImage={product.imageUrl}
-      />
+      <Reveal>
+        <ProductView
+          categoryName={category.name}
+          categoryHref={`/${category.slug}`}
+          productName={product.name}
+          productType={product.type}
+          description={product.description}
+          material={product.material}
+          variants={product.variants}
+          images={product.images}
+          featuredImage={product.imageUrl}
+        />
+      </Reveal>
 
       {related.length > 0 && (
         <section className="max-w-[1320px] mx-auto px-6 mt-20 pt-12 border-t border-line">
@@ -58,7 +61,9 @@ export default async function ProductPage({
           </span>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             {related.map((p, i) => (
-              <ProductCard key={p.slug} product={p} index={i} />
+              <Reveal key={p.slug} delay={(i % 4) * 80}>
+                <ProductCard product={p} index={i} />
+              </Reveal>
             ))}
           </div>
         </section>

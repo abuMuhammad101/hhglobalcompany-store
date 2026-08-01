@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import BracketLabel from "@/components/BracketLabel";
 import Button from "@/components/Button";
+import Reveal from "@/components/Reveal";
 import { getAboutContent, getCompanyStats, paragraphs } from "@/lib/content";
 
 export const revalidate = 60;
@@ -23,7 +24,7 @@ export default async function AboutPage() {
       {/* HERO */}
       <section className="pt-16 pb-20 sm:pb-24">
         <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-          <div>
+          <Reveal>
             <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">{content.hero.eyebrow}</span>
             <h1 className="text-[clamp(32px,5vw,52px)] font-medium tracking-tight leading-[1.1] max-w-[16ch] mb-6">
               {content.hero.heading}
@@ -34,46 +35,52 @@ export default async function AboutPage() {
             <Button href="/quote" variant="accent" size="lg" className="mt-8">
               Start a Quote
             </Button>
-          </div>
-          <div
-            className="relative aspect-[5/4] sm:aspect-[4/5] lg:aspect-[4/5] max-h-[420px] sm:max-h-[560px] lg:max-h-[620px] rounded-2xl border border-line overflow-hidden flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #EDEAE2 0%, #D9D5C8 35%, #D9B98C 70%, #B98A5C 100%)" }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.jpg" alt="" aria-hidden className="w-2/5 h-2/5 object-contain opacity-90 mix-blend-multiply" />
-          </div>
+          </Reveal>
+          <Reveal direction="right" delay={150}>
+            <div
+              className="relative aspect-[5/4] sm:aspect-[4/5] lg:aspect-[4/5] max-h-[420px] sm:max-h-[560px] lg:max-h-[620px] rounded-2xl border border-line overflow-hidden flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, #EDEAE2 0%, #D9D5C8 35%, #D9B98C 70%, #B98A5C 100%)" }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.jpg" alt="" aria-hidden className="w-2/5 h-2/5 object-contain opacity-90 mix-blend-multiply" />
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* STORY */}
       <section className="py-16 sm:py-20 bg-bg-soft border-y border-line">
         <div className="max-w-[1320px] mx-auto px-6 grid lg:grid-cols-[1fr_1.4fr] gap-10 lg:gap-16">
-          <h2 className="text-[clamp(22px,3vw,30px)] font-medium tracking-tight leading-[1.2] max-w-[16ch]">
-            {content.story.heading}
-          </h2>
-          <div className="text-ink-muted space-y-5 text-[15px] leading-relaxed max-w-[68ch]">
+          <Reveal direction="left">
+            <h2 className="text-[clamp(22px,3vw,30px)] font-medium tracking-tight leading-[1.2] max-w-[16ch]">
+              {content.story.heading}
+            </h2>
+          </Reveal>
+          <Reveal delay={100} className="text-ink-muted space-y-5 text-[15px] leading-relaxed max-w-[68ch]">
             {paragraphs(content.story.body).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* WHAT WE OFFER */}
       <section className="py-20 sm:py-24">
         <div className="max-w-[1320px] mx-auto px-6">
-          <div className="mb-12">
+          <Reveal className="mb-12">
             <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-4 block">{content.offer.eyebrow}</span>
             <h2 className="text-[clamp(26px,3.6vw,38px)] font-medium tracking-tight max-w-[20ch]">
               {content.offer.heading}
             </h2>
-          </div>
+          </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {content.offer.offerings.map((item, i) => (
-              <div key={i} className="border border-line rounded-2xl p-6 sm:p-7">
-                <OfferIcon name={offeringIcons[i % offeringIcons.length]} />
-                <h3 className="text-[15px] font-medium leading-snug mt-5">{item.title}</h3>
-              </div>
+              <Reveal key={i} delay={(i % 4) * 80} className="h-full">
+                <div className="h-full border border-line rounded-2xl p-6 sm:p-7">
+                  <OfferIcon name={offeringIcons[i % offeringIcons.length]} />
+                  <h3 className="text-[15px] font-medium leading-snug mt-5">{item.title}</h3>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -83,10 +90,10 @@ export default async function AboutPage() {
       <section className="py-20 sm:py-24 bg-bg-soft border-y border-line">
         <div className="max-w-[1320px] mx-auto px-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard num={stats.years.num} label={stats.years.label} />
-            <StatCard num={stats.orders.num} label={stats.orders.label} />
-            <StatCard num={stats.minUnits.num} label={stats.minUnits.label} />
-            <StatCard num={stats.turnaround.num} label={stats.turnaround.label} />
+            <Reveal className="h-full"><StatCard num={stats.years.num} label={stats.years.label} /></Reveal>
+            <Reveal delay={80} className="h-full"><StatCard num={stats.orders.num} label={stats.orders.label} /></Reveal>
+            <Reveal delay={160} className="h-full"><StatCard num={stats.minUnits.num} label={stats.minUnits.label} /></Reveal>
+            <Reveal delay={240} className="h-full"><StatCard num={stats.turnaround.num} label={stats.turnaround.label} /></Reveal>
           </div>
         </div>
       </section>
@@ -94,7 +101,7 @@ export default async function AboutPage() {
       {/* CLOSING CTA */}
       <section className="py-20 sm:py-24">
         <div className="max-w-[1320px] mx-auto px-6">
-          <div className="border border-line rounded-2xl p-10 sm:p-16 text-center max-w-[820px] mx-auto">
+          <Reveal className="border border-line rounded-2xl p-10 sm:p-16 text-center max-w-[820px] mx-auto">
             <BracketLabel className="text-ink-muted mb-6">
               <span className="font-mono-ui text-[11px] uppercase tracking-wider">{content.closingCta.badge}</span>
             </BracketLabel>
@@ -107,7 +114,7 @@ export default async function AboutPage() {
             <Button href="/quote" variant="accent" size="lg">
               Start a Quote
             </Button>
-          </div>
+          </Reveal>
         </div>
       </section>
     </main>
