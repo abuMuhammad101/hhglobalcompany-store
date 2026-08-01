@@ -1,19 +1,38 @@
 import type { Metadata } from "next";
-import { getCategory } from "@/lib/catalog";
+import { notFound } from "next/navigation";
+import { getCatalog, getCategory } from "@/lib/catalog";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/Reveal";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Garments — T-Shirts, Sweatshirts, Sweatpants & Hoodies",
-  description:
-    "Wholesale garments manufactured to your quantity and fabric spec: T-shirts, sweatshirts, sweatpants and hoodies.",
-};
+export async function generateStaticParams() {
+  const catalog = await getCatalog();
+  return catalog.map((c) => ({ category: c.slug }));
+}
 
-export default async function GarmentsPage() {
-  const category = await getCategory("garments");
-  if (!category) return null;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}): Promise<Metadata> {
+  const { category: slug } = await params;
+  const category = await getCategory(slug);
+  if (!category) return {};
+  return {
+    title: category.name,
+    description: category.description,
+  };
+}
+
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const { category: slug } = await params;
+  const category = await getCategory(slug);
+  if (!category) notFound();
 
   return (
     <main className="py-16">

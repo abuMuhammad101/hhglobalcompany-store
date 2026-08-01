@@ -20,8 +20,9 @@ export async function getCatalog(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
     .select(
-      "id, slug, name, catalogue_number, description, image_url, sort_order, products(id, slug, name, type, material, description, image_url, sort_order, product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order))"
+      "id, slug, name, catalogue_number, description, image_url, sort_order, is_active, products(id, slug, name, type, material, description, image_url, sort_order, product_types(is_active), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order))"
     )
+    .eq("is_active", true)
     .order("sort_order");
 
   if (error || !data || data.length === 0) {
@@ -35,8 +36,16 @@ export async function getCatalog(): Promise<Category[]> {
     catalogueNumber: c.catalogue_number,
     description: c.description ?? "",
     imageUrl: c.image_url ?? null,
+    isActive: c.is_active,
     products: (c.products ?? [])
       .slice()
+      // A disabled product type hides its products from the public site, same
+      // as a disabled category — but a product with no linked type yet (not
+      // backfilled) stays visible rather than silently disappearing.
+      .filter((p: { product_types: { is_active: boolean } | { is_active: boolean }[] | null }) => {
+        const productType = Array.isArray(p.product_types) ? p.product_types[0] : p.product_types;
+        return productType?.is_active !== false;
+      })
       .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
       .map(
         (p: {

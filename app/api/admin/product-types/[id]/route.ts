@@ -15,16 +15,26 @@ export async function PATCH(
   const body = await req.json();
   const patch: Record<string, unknown> = {};
   if (typeof body.name === "string") patch.name = body.name;
-  if (typeof body.description === "string") patch.description = body.description;
-  if ("imageUrl" in body) patch.image_url = body.imageUrl || null;
-  if (typeof body.slug === "string") patch.slug = body.slug;
-  if (typeof body.catalogueNumber === "string") patch.catalogue_number = body.catalogueNumber;
   if (typeof body.isActive === "boolean") patch.is_active = body.isActive;
 
-  const { error } = await supabase.from("categories").update(patch).eq("id", id);
+  const { data, error } = await supabase
+    .from("product_types")
+    .update(patch)
+    .eq("id", id)
+    .select("id, category_id, name")
+    .single();
+
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
+
+  // Keep every product's flat `type` display column in sync with a rename, so
+  // every existing read path (product cards, quote form, breadcrumbs) that
+  // reads products.type directly stays correct without needing the join.
+  if (typeof body.name === "string" && data) {
+    await supabase.from("products").update({ type: data.name }).eq("product_type_id", id);
+  }
+
   revalidateSite();
   return NextResponse.json({ ok: true });
 }
@@ -42,16 +52,16 @@ export async function DELETE(
   const { count } = await supabase
     .from("products")
     .select("id", { count: "exact", head: true })
-    .eq("category_id", id);
+    .eq("product_type_id", id);
 
   if ((count ?? 0) > 0) {
     return NextResponse.json(
-      { ok: false, error: `This category still has ${count} product${count === 1 ? "" : "s"} — move or delete them first.` },
+      { ok: false, error: `This product type still has ${count} product${count === 1 ? "" : "s"} — move or delete them first.` },
       { status: 400 }
     );
   }
 
-  const { error } = await supabase.from("categories").delete().eq("id", id);
+  const { error } = await supabase.from("product_types").delete().eq("id", id);
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }

@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Section, Field, SaveBar, inputClass } from "@/components/admin/FormKit";
 
-type CategoryOption = { id: string; name: string };
+type ProductTypeOption = { id: string; name: string; is_active: boolean };
+type CategoryOption = { id: string; name: string; productTypes: ProductTypeOption[] };
 
 type InitialProduct = {
   id: string;
   category_id: string;
   name: string;
   slug: string;
-  type: string;
+  product_type_id: string | null;
   material: string;
   description: string;
 };
@@ -39,18 +40,20 @@ export default function ProductForm({ categories, initial }: Props) {
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(isEdit);
   const [categoryId, setCategoryId] = useState(initial?.category_id ?? categories[0]?.id ?? "");
-  const [type, setType] = useState(initial?.type ?? "");
+  const [productTypeId, setProductTypeId] = useState(initial?.product_type_id ?? "");
   const [material, setMaterial] = useState(initial?.material ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState("");
+
+  const productTypes = categories.find((c) => c.id === categoryId)?.productTypes ?? [];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving("saving");
     setError("");
 
-    const payload = { categoryId, name, slug, type, material, description };
+    const payload = { categoryId, name, slug, productTypeId, material, description };
 
     try {
       const res = await fetch(isEdit ? `/api/admin/products/${initial!.id}` : "/api/admin/products", {
@@ -84,7 +87,10 @@ export default function ProductForm({ categories, initial }: Props) {
             <select
               required
               value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+              onChange={(e) => {
+                setCategoryId(e.target.value);
+                setProductTypeId("");
+              }}
               className={inputClass}
             >
               {categories.map((c) => (
@@ -119,8 +125,30 @@ export default function ProductForm({ categories, initial }: Props) {
             />
           </Field>
 
-          <Field label="Type" required hint="Shown as the product's category tag, e.g. 'T-Shirt' or 'Mens Wallet'">
-            <input required value={type} onChange={(e) => setType(e.target.value)} className={inputClass} />
+          <Field
+            label="Product Type"
+            required
+            hint={
+              productTypes.length === 0
+                ? "This category has no product types yet — add one from the Categories admin page first."
+                : "Shown as the product's category tag, e.g. 'T-Shirt' or 'Mens Wallet'"
+            }
+          >
+            <select
+              required
+              value={productTypeId}
+              onChange={(e) => setProductTypeId(e.target.value)}
+              disabled={productTypes.length === 0}
+              className={inputClass}
+            >
+              <option value="">Select a product type</option>
+              {productTypes.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                  {!t.is_active ? " (disabled)" : ""}
+                </option>
+              ))}
+            </select>
           </Field>
 
           <Field label="Material">

@@ -29,17 +29,23 @@ export default async function EditProductPage({
   }
 
   const [{ data: categories }, { data: product }] = await Promise.all([
-    supabase.from("categories").select("id, name").order("sort_order"),
+    supabase.from("categories").select("id, name, product_types(id, name, is_active)").order("sort_order"),
     supabase
       .from("products")
       .select(
-        "id, category_id, name, slug, type, material, description, image_url, categories(name), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order)"
+        "id, category_id, name, slug, type, product_type_id, material, description, image_url, categories(name), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order)"
       )
       .eq("id", id)
       .single(),
   ]);
 
   if (!product) notFound();
+
+  const categoryOptions = (categories ?? []).map((c) => ({
+    id: c.id,
+    name: c.name,
+    productTypes: c.product_types ?? [],
+  }));
 
   const variants = (product.product_variants ?? [])
     .slice()
@@ -61,7 +67,7 @@ export default async function EditProductPage({
       <div className="max-w-[1200px] mx-auto px-6 grid lg:grid-cols-2 gap-12">
         <div className="min-w-0">
           <h1 className="text-2xl mb-8">Edit Product</h1>
-          <ProductForm categories={categories ?? []} initial={product} />
+          <ProductForm categories={categoryOptions} initial={product} />
 
           <div className="border-t border-line mt-10 pt-10">
             <FeaturedImageManager productId={product.id} initialImageUrl={product.image_url} />

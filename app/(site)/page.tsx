@@ -18,9 +18,11 @@ export default async function HomePage() {
     getHomeContent(),
     getCompanyStats(),
   ]);
-  const garments = catalog.find((c) => c.slug === "garments")!;
-  const leather = catalog.find((c) => c.slug === "leather")!;
   const aboutParagraphs = paragraphs(content.about.body);
+  const categoryFallbackGradients = [
+    { tile: "radial-gradient(120% 90% at 30% 10%, #EDEAE2 0%, #D9D5C8 55%, #B9B3A0 100%)", direction: "left" as const },
+    { tile: "radial-gradient(120% 90% at 60% 20%, #F3E4D0 0%, #D9B98C 55%, #B98A5C 100%)", direction: "right" as const },
+  ];
 
   return (
     <main>
@@ -83,94 +85,60 @@ export default async function HomePage() {
       <section id="categories" className="pt-16 pb-16">
         <div className="max-w-[1320px] mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-4">
-            <Reveal direction="left">
-              <Link
-                href="/garments"
-                className="relative aspect-[4/3] lg:aspect-[16/9] flex items-end p-6 sm:p-8 rounded-2xl overflow-hidden bg-cover bg-center"
-                style={{
-                  background: garments.imageUrl
-                    ? `url(${garments.imageUrl}) center/cover`
-                    : "radial-gradient(120% 90% at 30% 10%, #EDEAE2 0%, #D9D5C8 55%, #B9B3A0 100%)",
-                }}
-              >
-                {garments.imageUrl && (
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 45%)" }}
-                  />
-                )}
-                <span className={`relative text-2xl sm:text-3xl font-medium tracking-tight ${garments.imageUrl ? "text-on-dark" : "text-ink"}`}>
-                  Garments
-                </span>
-              </Link>
-            </Reveal>
-            <Reveal direction="right" delay={100}>
-              <Link
-                href="/leather"
-                className="relative aspect-[4/3] lg:aspect-[16/9] flex items-end p-6 sm:p-8 rounded-2xl overflow-hidden bg-cover bg-center"
-                style={{
-                  background: leather.imageUrl
-                    ? `url(${leather.imageUrl}) center/cover`
-                    : "radial-gradient(120% 90% at 60% 20%, #F3E4D0 0%, #D9B98C 55%, #B98A5C 100%)",
-                }}
-              >
-                {leather.imageUrl && (
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 45%)" }}
-                  />
-                )}
-                <span className="relative text-2xl sm:text-3xl font-medium tracking-tight text-on-dark">
-                  Leather Products
-                </span>
-              </Link>
-            </Reveal>
+            {catalog.map((c, i) => {
+              const fallback = categoryFallbackGradients[i % categoryFallbackGradients.length];
+              const isLastOdd = i === catalog.length - 1 && catalog.length % 2 === 1;
+              return (
+                <Reveal key={c.slug} direction={fallback.direction} delay={i * 100} className={isLastOdd ? "lg:col-span-2" : ""}>
+                  <Link
+                    href={`/${c.slug}`}
+                    className="relative aspect-[4/3] lg:aspect-[16/9] flex items-end p-6 sm:p-8 rounded-2xl overflow-hidden bg-cover bg-center"
+                    style={{
+                      background: c.imageUrl ? `url(${c.imageUrl}) center/cover` : fallback.tile,
+                    }}
+                  >
+                    {c.imageUrl && (
+                      <div
+                        className="absolute inset-0"
+                        style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 45%)" }}
+                      />
+                    )}
+                    <span className={`relative text-2xl sm:text-3xl font-medium tracking-tight ${c.imageUrl ? "text-on-dark" : "text-ink"}`}>
+                      {c.name}
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* CATALOGUE 01 — GARMENTS PREVIEW */}
-      <section id="garments" className="py-16">
-        <div className="max-w-[1320px] mx-auto px-6">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
-            <div>
-              <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">Catalogue — 01</span>
-              <h2 className="text-[clamp(24px,3vw,32px)] font-medium tracking-tight">Premium Garments</h2>
+      {/* CATALOGUE PREVIEWS */}
+      {catalog.map((c, i) => (
+        <section key={c.slug} id={c.slug} className={`py-16 ${i % 2 === 1 ? "bg-bg-soft" : ""}`}>
+          <div className="max-w-[1320px] mx-auto px-6">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
+              <div>
+                <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">
+                  Catalogue — {c.catalogueNumber}
+                </span>
+                <h2 className="text-[clamp(24px,3vw,32px)] font-medium tracking-tight">{c.name}</h2>
+              </div>
+              <Button href={`/${c.slug}`} variant="ghost" className="self-start">
+                View all {c.name.toLowerCase()}
+              </Button>
             </div>
-            <Button href="/garments" variant="ghost" className="self-start">
-              View all garments
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 border-t border-line pt-8">
-            {garments.products.map((p, i) => (
-              <Reveal key={p.slug} delay={(i % 4) * 80}>
-                <ProductCard product={p} index={i} />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CATALOGUE 02 — LEATHER PREVIEW */}
-      <section id="leather" className="py-16 bg-bg-soft">
-        <div className="max-w-[1320px] mx-auto px-6">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
-            <div>
-              <h2 className="text-[clamp(24px,3vw,32px)] font-medium tracking-tight">Full Grain Leather</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 border-t border-line pt-8">
+              {c.products.map((p, j) => (
+                <Reveal key={p.slug} delay={(j % 4) * 80}>
+                  <ProductCard product={p} index={j} />
+                </Reveal>
+              ))}
             </div>
-            <Button href="/leather" variant="ghost" className="self-start">
-              View all leather goods
-            </Button>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 pt-8 border-t border-line">
-            {leather.products.map((p, i) => (
-              <Reveal key={p.slug} delay={(i % 4) * 80}>
-                <ProductCard product={p} index={i} />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
       {/* PROCESS */}
       <section className="py-20 sm:py-24">

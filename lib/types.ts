@@ -31,6 +31,7 @@ export type Category = {
   catalogueNumber: string;
   description: string;
   imageUrl?: string | null;
+  isActive?: boolean;
   products: Product[];
 };
 
