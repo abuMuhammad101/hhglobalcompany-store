@@ -18,17 +18,21 @@ export async function POST(req: NextRequest) {
     .from("hero_slides")
     .select("id", { count: "exact", head: true });
 
-  const { error } = await supabase.from("hero_slides").insert({
-    image_url: imageUrl,
-    label: label || null,
-    sort_order: count ?? 0,
-  });
+  const { data, error } = await supabase
+    .from("hero_slides")
+    .insert({
+      image_url: imageUrl,
+      label: label || null,
+      sort_order: count ?? 0,
+    })
+    .select("id, image_url, label, sort_order")
+    .single();
 
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
   revalidateSite();
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, slide: data });
 }
 
 // Reorders slides: body is { order: string[] } — an array of slide ids in the

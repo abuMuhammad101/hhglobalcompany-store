@@ -9,33 +9,44 @@ type Slide = { id: string; image_url: string; label: string | null };
 export default function HeroSlideManager({ initialSlides }: { initialSlides: Slide[] }) {
   const router = useRouter();
   const [slides, setSlides] = useState(initialSlides);
-  const [newLabel, setNewLabel] = useState("");
-  const [newImage, setNewImage] = useState<string | null>(null);
-  const [adding, setAdding] = useState(false);
+  const [addKey, setAddKey] = useState(0);
   const [addError, setAddError] = useState("");
   const [reordering, setReordering] = useState(false);
 
-  async function addSlide(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newImage) return;
-    setAdding(true);
-    setAddError("");
-    try {
-      const res = await fetch("/api/admin/hero-slides", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ label: newLabel, imageUrl: newImage }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok || !body.ok) throw new Error(body.error || "Couldn't add the slide.");
-      setNewLabel("");
-      setNewImage(null);
-      router.refresh();
-    } catch (err) {
-      setAddError(err instanceof Error ? err.message : "Couldn't add the slide.");
-    } finally {
-      setAdding(false);
+  async function addOne(url: string): Promise<boolean> {
+    const res = await fetch("/api/admin/hero-slides", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ label: null, imageUrl: url }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok && body.ok && body.slide) {
+      setSlides((cur) => [...cur, { id: body.slide.id, image_url: body.slide.image_url, label: body.slide.label }]);
+      return true;
     }
+    return false;
+  }
+
+  async function handleAdd(url: string | null) {
+    if (!url) return;
+    setAddError("");
+    const ok = await addOne(url);
+    if (!ok) setAddError("Couldn't add that slide — please try again.");
+    setAddKey((k) => k + 1);
+    router.refresh();
+  }
+
+  async function handleAddMultiple(urls: string[]) {
+    setAddError("");
+    let failures = 0;
+    for (const url of urls) {
+      if (!(await addOne(url))) failures += 1;
+    }
+    if (failures > 0) {
+      setAddError(`${failures} slide${failures > 1 ? "s" : ""} couldn't be added — please try again.`);
+    }
+    setAddKey((k) => k + 1);
+    router.refresh();
   }
 
   async function deleteSlide(id: string) {
@@ -77,7 +88,8 @@ export default function HeroSlideManager({ initialSlides }: { initialSlides: Sli
       <h2 className="text-lg font-medium mb-4">Homepage Hero Carousel</h2>
       <p className="text-sm text-ink-muted mb-4">
         These photos slide automatically in the homepage hero section, alternating every few
-        seconds. Add as many as you like, and use the arrows to change the order they play in.
+        seconds. Select multiple photos at once to add them all, or add them one at a time —
+        then use the arrows to change the order they play in, and give each an optional label.
       </p>
 
       {slides.length > 0 && (
@@ -98,25 +110,18 @@ export default function HeroSlideManager({ initialSlides }: { initialSlides: Sli
         </ul>
       )}
 
-      <form onSubmit={addSlide} className="flex flex-col gap-4 border-t border-line pt-5">
-        <input
-          value={newLabel}
-          onChange={(e) => setNewLabel(e.target.value)}
-          placeholder="Slide label (optional), e.g. Leather Goods"
-          className="flex-1 text-sm border border-line rounded px-3 py-2 focus:border-ink focus:outline-none"
+      <div className="border-t border-line pt-5">
+        <ImageUploader
+          key={addKey}
+          value={null}
+          onChange={handleAdd}
+          onAddMultiple={handleAddMultiple}
+          multiple
+          label="Add Slides"
+          hint="Select multiple photos at once, or add them one at a time"
         />
-        <ImageUploader value={newImage} onChange={setNewImage} label="Photo" />
-        <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            disabled={adding || !newImage}
-            className="self-start h-10 px-5 rounded-full bg-ink text-on-dark text-sm font-medium disabled:opacity-60"
-          >
-            {adding ? "Adding..." : "+ Add Slide"}
-          </button>
-          {addError && <span className="text-xs text-red-700">{addError}</span>}
-        </div>
-      </form>
+        {addError && <p className="text-xs text-red-700 mt-2">{addError}</p>}
+      </div>
     </div>
   );
 }
