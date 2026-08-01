@@ -48,6 +48,7 @@ export default async function ProductPage({
         material={product.material}
         variants={product.variants}
         images={product.images}
+        featuredImage={product.imageUrl}
       />
 
       {related.length > 0 && (
