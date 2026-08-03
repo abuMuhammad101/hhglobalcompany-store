@@ -115,12 +115,18 @@ export default function ProductOverview({
 
         {hasVariants && (
           <div className="mb-8">
-            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
+            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-3 block">
               Style / Finish
             </span>
-            <div className="flex flex-wrap gap-2">
-              {variants.map((v) => (
-                <VariantLinkPill key={v.id ?? v.slug} href={`/product/${productSlug}/${v.slug}`} label={v.name} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {variants.map((v, i) => (
+                <VariantLinkPill
+                  key={v.id ?? v.slug}
+                  href={`/product/${productSlug}/${v.slug}`}
+                  label={v.name}
+                  imageUrl={v.imageUrl}
+                  fallbackIndex={i}
+                />
               ))}
             </div>
           </div>

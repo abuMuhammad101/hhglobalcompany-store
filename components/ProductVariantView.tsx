@@ -171,12 +171,18 @@ export default function ProductVariantView({
               <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
                 Style / Finish — {activeVariant.name}
               </span>
-              <div className="flex flex-wrap gap-2">
-                {variants.map((v) =>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {variants.map((v, i) =>
                   v.slug === activeVariant.slug ? (
-                    <VariantLinkPill key={v.id ?? v.slug} label={v.name} active />
+                    <VariantLinkPill key={v.id ?? v.slug} label={v.name} imageUrl={v.imageUrl} fallbackIndex={i} active />
                   ) : (
-                    <VariantLinkPill key={v.id ?? v.slug} href={`/product/${productSlug}/${v.slug}`} label={v.name} />
+                    <VariantLinkPill
+                      key={v.id ?? v.slug}
+                      href={`/product/${productSlug}/${v.slug}`}
+                      label={v.name}
+                      imageUrl={v.imageUrl}
+                      fallbackIndex={i}
+                    />
                   )
                 )}
               </div>
