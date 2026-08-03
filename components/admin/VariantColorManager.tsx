@@ -3,9 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "./ImageUploader";
+import VariantColorImageManager from "./VariantColorImageManager";
 
 type CategoryColor = { id: string; name: string; is_active: boolean };
-type VariantColorRow = { id: string; image_url: string; sort_order: number; colorId: string; colorName: string };
+type VariantColorImageRow = { id: string; image_url: string; sort_order: number };
+type VariantColorRow = {
+  id: string;
+  image_url: string;
+  sort_order: number;
+  colorId: string;
+  colorName: string;
+  images?: VariantColorImageRow[];
+};
 
 export default function VariantColorManager({
   variantId,
@@ -114,36 +123,39 @@ export default function VariantColorManager({
       {colors.length > 0 && (
         <ul className="mb-3 space-y-2">
           {colors.map((c, i) => (
-            <li key={c.id} className="flex items-center gap-3 border border-line rounded-lg p-2">
-              <ImageUploader compact value={c.image_url} onChange={(url) => updatePhoto(c.id, url)} />
-              <span className="flex-1 min-w-0 text-sm font-medium truncate">{c.colorName}</span>
-              <div className="flex flex-col shrink-0">
+            <li key={c.id} className="border border-line rounded-lg p-2">
+              <div className="flex items-center gap-3">
+                <ImageUploader compact value={c.image_url} onChange={(url) => updatePhoto(c.id, url)} />
+                <span className="flex-1 min-w-0 text-sm font-medium truncate">{c.colorName}</span>
+                <div className="flex flex-col shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0}
+                    aria-label="Move earlier"
+                    className="w-5 h-5 inline-flex items-center justify-center text-ink-muted hover:text-ink disabled:opacity-30"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(i, 1)}
+                    disabled={i === colors.length - 1}
+                    aria-label="Move later"
+                    className="w-5 h-5 inline-flex items-center justify-center text-ink-muted hover:text-ink disabled:opacity-30"
+                  >
+                    ↓
+                  </button>
+                </div>
                 <button
                   type="button"
-                  onClick={() => move(i, -1)}
-                  disabled={i === 0}
-                  aria-label="Move earlier"
-                  className="w-5 h-5 inline-flex items-center justify-center text-ink-muted hover:text-ink disabled:opacity-30"
+                  onClick={() => remove(c.id)}
+                  className="text-xs text-ink-muted hover:text-red-700 shrink-0"
                 >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  onClick={() => move(i, 1)}
-                  disabled={i === colors.length - 1}
-                  aria-label="Move later"
-                  className="w-5 h-5 inline-flex items-center justify-center text-ink-muted hover:text-ink disabled:opacity-30"
-                >
-                  ↓
+                  Remove
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={() => remove(c.id)}
-                className="text-xs text-ink-muted hover:text-red-700 shrink-0"
-              >
-                Remove
-              </button>
+              <VariantColorImageManager variantColorId={c.id} initialImages={c.images ?? []} />
             </li>
           ))}
         </ul>

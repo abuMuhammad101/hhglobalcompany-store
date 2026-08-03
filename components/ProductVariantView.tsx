@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ProductImage, Variant } from "@/lib/types";
 import { fallbackGradients } from "@/lib/fallbackGradients";
 import Button from "@/components/Button";
@@ -22,15 +22,15 @@ type Props = {
   images: ProductImage[];
 };
 
-type PhotoEntry = { url: string; colorName?: string };
-
 /**
  * The /product/[slug]/[variant] page — scoped entirely to one Style/Finish
- * option. The top viewer only ever shows that variant's own photo, filtered
- * further to one color's photo once picked — it never mixes in the
- * product's generic Detail Photos, which get their own clearly-labeled
- * section below instead ("Product Details Gallery"), each with an
- * independent lightbox so browsing one set never wraps into the other's.
+ * option. The top viewer shows only the *currently selected* photo set: the
+ * variant's own default photo until a color is picked, then that color's own
+ * photos only (its cover photo plus any extra photos added for it) — never
+ * another color's photos, and never the product's generic Detail Photos,
+ * which get their own clearly-labelled section below instead ("Product
+ * Details Gallery"), with an independent lightbox so browsing one set never
+ * wraps into the other's.
  */
 export default function ProductVariantView({
   categoryName,
@@ -44,26 +44,28 @@ export default function ProductVariantView({
   activeVariant,
   images,
 }: Props) {
-  const variantPhotos: PhotoEntry[] = [
-    ...(activeVariant.imageUrl ? [{ url: activeVariant.imageUrl }] : []),
-    ...(activeVariant.colors ?? []).map((c) => ({ url: c.imageUrl, colorName: c.name })),
-  ];
-  const hasVariantGallery = variantPhotos.length > 1;
   const hasColors = Boolean(activeVariant.colors && activeVariant.colors.length > 0);
+  const [selectedColorName, setSelectedColorName] = useState<string | null>(null);
+  const activeColor = activeVariant.colors?.find((c) => c.name === selectedColorName);
+
+  const currentPhotos: string[] = activeColor
+    ? [activeColor.imageUrl, ...(activeColor.images ?? []).map((img) => img.imageUrl)]
+    : activeVariant.imageUrl
+      ? [activeVariant.imageUrl]
+      : [];
+  const hasVariantGallery = currentPhotos.length > 1;
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const displayImageUrl = variantPhotos[activeIndex]?.url ?? null;
-  const activeColorName = variantPhotos[activeIndex]?.colorName;
+  const displayImageUrl = currentPhotos[activeIndex] ?? null;
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [selectedColorName]);
 
   function goTo(direction: -1 | 1) {
     if (!hasVariantGallery) return;
-    setActiveIndex((i) => (i + direction + variantPhotos.length) % variantPhotos.length);
-  }
-
-  function selectColor(name: string) {
-    const idx = variantPhotos.findIndex((p) => p.colorName === name);
-    if (idx >= 0) setActiveIndex(idx);
+    setActiveIndex((i) => (i + direction + currentPhotos.length) % currentPhotos.length);
   }
 
   const detailImages = images.map((img) => img.imageUrl);
@@ -71,7 +73,7 @@ export default function ProductVariantView({
   const [detailLightboxOpen, setDetailLightboxOpen] = useState(false);
 
   const quoteHref = `/quote?type=${encodeURIComponent(productType)}&variant=${encodeURIComponent(activeVariant.name)}${
-    activeColorName ? `&color=${encodeURIComponent(activeColorName)}` : ""
+    selectedColorName ? `&color=${encodeURIComponent(selectedColorName)}` : ""
   }`;
 
   return (
@@ -86,7 +88,7 @@ export default function ProductVariantView({
             <div
               tabIndex={0}
               role="img"
-              aria-label={`${productName} — ${activeVariant.name}${activeColorName ? ` — ${activeColorName}` : ""} photo`}
+              aria-label={`${productName} — ${activeVariant.name}${selectedColorName ? ` — ${selectedColorName}` : ""} photo`}
               onKeyDown={(e) => {
                 if (e.key === "ArrowLeft") goTo(-1);
                 if (e.key === "ArrowRight") goTo(1);
@@ -112,17 +114,17 @@ export default function ProductVariantView({
 
           {hasVariantGallery && (
             <div className="flex gap-2.5 mt-3 overflow-x-auto">
-              {variantPhotos.map((p, i) => (
+              {currentPhotos.map((url, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => setActiveIndex(i)}
-                  aria-label={p.colorName ? `View ${p.colorName}` : "View photo"}
+                  aria-label={selectedColorName ? `View ${selectedColorName} photo ${i + 1}` : `View photo ${i + 1}`}
                   aria-current={i === activeIndex}
                   className={`w-16 h-16 shrink-0 rounded-xl border-2 bg-cover bg-center transition-all ${
                     i === activeIndex ? "border-accent" : "border-line opacity-60 hover:opacity-100"
                   }`}
-                  style={{ backgroundImage: `url(${p.url})` }}
+                  style={{ backgroundImage: `url(${url})` }}
                 />
               ))}
             </div>
@@ -131,7 +133,7 @@ export default function ProductVariantView({
           {hasColors && (
             <div className="mt-5">
               <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
-                Color{activeColorName ? ` — ${activeColorName}` : ""}
+                Color{selectedColorName ? ` — ${selectedColorName}` : ""}
               </span>
               <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Color">
                 {activeVariant.colors!.map((c) => (
@@ -139,10 +141,10 @@ export default function ProductVariantView({
                     key={c.id ?? c.name}
                     type="button"
                     role="radio"
-                    aria-checked={c.name === activeColorName}
-                    onClick={() => selectColor(c.name)}
+                    aria-checked={c.name === selectedColorName}
+                    onClick={() => setSelectedColorName(c.name)}
                     className={`border px-3.5 py-1.5 text-sm rounded-full transition-colors ${
-                      c.name === activeColorName
+                      c.name === selectedColorName
                         ? "border-ink bg-ink text-on-dark"
                         : "border-line text-ink hover:border-ink-faint"
                     }`}
@@ -171,12 +173,18 @@ export default function ProductVariantView({
               <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
                 Style / Finish — {activeVariant.name}
               </span>
-              <div className="flex flex-wrap gap-2">
-                {variants.map((v) =>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {variants.map((v, i) =>
                   v.slug === activeVariant.slug ? (
-                    <VariantLinkPill key={v.id ?? v.slug} label={v.name} active />
+                    <VariantLinkPill key={v.id ?? v.slug} label={v.name} imageUrl={v.imageUrl} fallbackIndex={i} active />
                   ) : (
-                    <VariantLinkPill key={v.id ?? v.slug} href={`/product/${productSlug}/${v.slug}`} label={v.name} />
+                    <VariantLinkPill
+                      key={v.id ?? v.slug}
+                      href={`/product/${productSlug}/${v.slug}`}
+                      label={v.name}
+                      imageUrl={v.imageUrl}
+                      fallbackIndex={i}
+                    />
                   )
                 )}
               </div>
@@ -187,7 +195,7 @@ export default function ProductVariantView({
             <DetailRow label="Category" value={categoryName} />
             <DetailRow label="Product Type" value={productType} />
             <DetailRow label="Style / Finish" value={activeVariant.name} />
-            {activeColorName && <DetailRow label="Color" value={activeColorName} />}
+            {selectedColorName && <DetailRow label="Color" value={selectedColorName} />}
             {material && <DetailRow label="Material" value={material} />}
           </div>
 
@@ -198,7 +206,7 @@ export default function ProductVariantView({
 
         {lightboxOpen && displayImageUrl && (
           <PhotoLightbox
-            images={variantPhotos.map((p) => p.url)}
+            images={currentPhotos}
             activeIndex={activeIndex}
             onIndexChange={setActiveIndex}
             onClose={() => setLightboxOpen(false)}
@@ -210,10 +218,10 @@ export default function ProductVariantView({
                       key={c.id ?? c.name}
                       type="button"
                       role="radio"
-                      aria-checked={c.name === activeColorName}
-                      onClick={() => selectColor(c.name)}
+                      aria-checked={c.name === selectedColorName}
+                      onClick={() => setSelectedColorName(c.name)}
                       className={`border px-3.5 py-1.5 text-sm rounded-full transition-colors ${
-                        c.name === activeColorName
+                        c.name === selectedColorName
                           ? "border-white bg-white text-ink"
                           : "border-white/30 text-white hover:border-white/60"
                       }`}

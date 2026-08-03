@@ -90,8 +90,10 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   (`colors` table, category-scoped, and `product_variants` gains a nested
   `variant_colors` layer — see the Style/Finish variants bullet below),
   `schema-variant-slugs.sql` (`product_variants.slug`, auto-generated and
-  backfilled — see the product page bullet below for what it's for). Follow
-  this pattern for future schema changes too.
+  backfilled — see the product page bullet below for what it's for),
+  `schema-variant-color-images.sql` (`variant_color_images` table — extra
+  photos per color, beyond its required cover photo). Follow this pattern for
+  future schema changes too.
 - Every product has **three independent photo surfaces**, each with its own
   admin manager component: a single **Featured Image** (`products.image_url`,
   `components/admin/FeaturedImageManager.tsx` → `PATCH /api/admin/products/[id]/image`)
@@ -106,7 +108,14 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   Black/Brown/Blue photos. Colors themselves are a **category-managed
   vocabulary** (`colors` table, `ColorManager.tsx`, nested in Category admin
   alongside Product Types) since they're shared across a category's products,
-  while the variant level itself stays product-scoped free text.
+  while the variant level itself stays product-scoped free text. A color can
+  in turn carry **additional photos** beyond its required cover photo
+  (`variant_color_images` table, `VariantColorImageManager.tsx`, nested inside
+  each color row in `VariantColorManager.tsx`) — the same Featured
+  Image/Detail Photos relationship a product has, one level deeper. On the
+  variant page, picking a color scopes the photo viewer to *only* that
+  color's own photos (cover + extras) — never another color's, never the
+  variant's own default photo, never the product's generic Detail Photos.
 - `lib/catalog.ts`, `lib/settings.ts`, `lib/hero.ts`, `lib/content.ts` — async data
   getters, each: try Supabase, fall back to a JSON file in `data/` on no
   connection or query error. `lib/content.ts` also exports `paragraphs()`, a
@@ -312,6 +321,20 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   admin CRUD (`VariantManager.tsx` and friends) needed zero changes — this was
   entirely a public-page presentation change. `ProductView.tsx` (the old
   single-page component) now serves only the admin edit page's live preview.
+  Style/Finish options on both pages also became bigger cards with their own
+  thumbnail photo (`VariantLinkPill.tsx`) instead of plain text pills, laid
+  out in a two-column grid.
+- ✅ A Color can now carry more than one photo (`variant_color_images` table,
+  `VariantColorImageManager.tsx` nested inside each color row in
+  `VariantColorManager.tsx`) — mirrors the product-level Featured
+  Image/Detail Photos relationship one level deeper: the color's existing
+  required photo stays its cover, this is purely additive extras. On the
+  variant page, the photo viewer and its thumbnail strip are now scoped
+  strictly to whichever color is currently selected (that color's cover +
+  its own extras only) instead of showing every color's photo in one mixed
+  strip — picking "Brown" never shows a Black or Blue thumbnail. A color with
+  only its cover photo (no extras added) shows no thumbnail strip at all,
+  same as a single-photo product always has.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a
