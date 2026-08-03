@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllProducts, getProduct } from "@/lib/catalog";
-import ProductOverview from "@/components/ProductOverview";
+import { getAllProducts, getProductVariant } from "@/lib/catalog";
+import ProductVariantView from "@/components/ProductVariantView";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/Reveal";
 
@@ -9,39 +9,41 @@ export const revalidate = 60;
 
 export async function generateStaticParams() {
   const products = await getAllProducts();
-  return products.map(({ product }) => ({ slug: product.slug }));
+  return products.flatMap(({ product }) =>
+    product.variants.map((v) => ({ slug: product.slug, variant: v.slug }))
+  );
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; variant: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const found = await getProduct(slug);
+  const { slug, variant } = await params;
+  const found = await getProductVariant(slug, variant);
   if (!found) return {};
   return {
-    title: found.product.name,
+    title: `${found.variant.name} — ${found.product.name}`,
     description: found.product.description,
   };
 }
 
-export default async function ProductPage({
+export default async function ProductVariantPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; variant: string }>;
 }) {
-  const { slug } = await params;
-  const found = await getProduct(slug);
+  const { slug, variant } = await params;
+  const found = await getProductVariant(slug, variant);
   if (!found) notFound();
 
-  const { category, product } = found;
+  const { category, product, variant: activeVariant } = found;
   const related = category.products.filter((p) => p.slug !== product.slug).slice(0, 4);
 
   return (
     <main className="py-16">
       <Reveal>
-        <ProductOverview
+        <ProductVariantView
           categoryName={category.name}
           categoryHref={`/${category.slug}`}
           productSlug={product.slug}
@@ -50,8 +52,8 @@ export default async function ProductPage({
           description={product.description}
           material={product.material}
           variants={product.variants}
+          activeVariant={activeVariant}
           images={product.images}
-          featuredImage={product.imageUrl}
         />
       </Reveal>
 
@@ -77,7 +79,7 @@ export default async function ProductPage({
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Product",
-            name: product.name,
+            name: `${activeVariant.name} — ${product.name}`,
             description: product.description,
             category: category.name,
             material: product.material,

@@ -6,6 +6,7 @@ export type VariantColor = {
 
 export type Variant = {
   id?: string;
+  slug: string;
   name: string;
   imageUrl?: string | null;
   colors?: VariantColor[];
