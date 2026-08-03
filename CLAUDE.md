@@ -88,7 +88,9 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   bucket), `schema-category-hierarchy.sql` (`categories.is_active`, and a new
   `product_types` table — see the Categories bullet below), `schema-variant-colors.sql`
   (`colors` table, category-scoped, and `product_variants` gains a nested
-  `variant_colors` layer — see the Style/Finish variants bullet below). Follow
+  `variant_colors` layer — see the Style/Finish variants bullet below),
+  `schema-variant-slugs.sql` (`product_variants.slug`, auto-generated and
+  backfilled — see the product page bullet below for what it's for). Follow
   this pattern for future schema changes too.
 - Every product has **three independent photo surfaces**, each with its own
   admin manager component: a single **Featured Image** (`products.image_url`,
@@ -104,19 +106,7 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   Black/Brown/Blue photos. Colors themselves are a **category-managed
   vocabulary** (`colors` table, `ColorManager.tsx`, nested in Category admin
   alongside Product Types) since they're shared across a category's products,
-  while the variant level itself stays product-scoped free text. On the
-  product page, the variant ("Style / Finish") picker lives in the right-hand
-  info column with the **first variant pre-selected by default** whenever any
-  variant has colors attached (so there's always something to browse colors
-  under); products using only plain single-level variants keep the earlier
-  no-pre-selection behavior. The Color picker (when the active variant has
-  any) sits under the photo/thumbnails where Style/Finish used to be, with
-  **no color pre-selected** — picking one swaps the photo. `ProductView.tsx`
-  composes the customer-facing gallery as `[active color photo, ...detail
-  photos]` → `[active variant photo, ...detail photos]` → `[featured image,
-  ...detail photos]`, falling through in that order depending on what's
-  selected/available. Both the variant and color pickers have full lightbox
-  parity, matching the main view.
+  while the variant level itself stays product-scoped free text.
 - `lib/catalog.ts`, `lib/settings.ts`, `lib/hero.ts`, `lib/content.ts` — async data
   getters, each: try Supabase, fall back to a JSON file in `data/` on no
   connection or query error. `lib/content.ts` also exports `paragraphs()`, a
@@ -125,13 +115,39 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
 - `lib/supabase.ts` — Supabase client, reads `SUPABASE_URL` +
   `SUPABASE_SERVICE_KEY` (falls back to `SUPABASE_SECRET_KEY`, which is what
   Vercel's official Supabase integration names it)
-- `components/ProductView.tsx` — product detail view: framed main photo
-  (`rounded-2xl border border-line`, matching `ProductCard`/`HeroCarousel`), a
-  real photo gallery (thumbnails, prev/next arrows, click-to-zoom lightbox),
-  breadcrumb, and a Details card (category/type/style/material). Reused (in
-  `compact` mode) for the admin live preview. The product page itself
-  (`app/product/[slug]/page.tsx`) additionally renders a "More from
-  [Category]" related-products section below it, using `ProductCard`.
+- **The product detail experience is split across two pages** so a shopper is
+  never looking at a photo that could be mistaken for something it isn't:
+  `app/product/[slug]/page.tsx` (via `components/ProductOverview.tsx`) shows
+  only the product's own photos — Featured Image + Detail Photos gallery,
+  framed main photo (`rounded-2xl border border-line`, matching
+  `ProductCard`/`HeroCarousel`) with thumbnails/arrows/click-to-zoom — plus a
+  Details card and, if the product has any, its Style/Finish options rendered
+  as a plain list of pill **links** (not an in-place photo swap). Clicking one
+  navigates to `app/product/[slug]/[variant]/page.tsx` (via
+  `components/ProductVariantView.tsx`): a dedicated page for that one
+  option, breadcrumb now three levels deep (`Category / Product Type /
+  Variant`), whose photo viewer is scoped *only* to that variant's own photo
+  plus each of its Colors' photos (color chips filter it further, exactly
+  like the old in-place picker did) — the generic Detail Photos never mix
+  into this viewer. They get their own clearly-labelled **"Product Details
+  Gallery"** section further down the same page instead, with its own
+  independent lightbox, so browsing one set never spills into the other's.
+  Both pages share `components/PhotoLightbox.tsx` (the extracted zoom/
+  keyboard-nav/thumbnail-strip modal, with an `extraControls` slot for the
+  color-pill row), `components/ProductBreadcrumb.tsx`, and
+  `components/VariantLinkPill.tsx` (a pill + small `ArrowBadge`-style icon,
+  signalling "this navigates" rather than "this toggles in place"). Each
+  variant's `slug` (`product_variants.slug`, `data/schema-variant-slugs.sql`)
+  is auto-generated server-side from its name the moment it's created
+  (`POST /api/admin/products/[id]/variants`) and never regenerated on rename,
+  so a shared variant link never breaks later — there's no slug field in the
+  admin UI, it's invisible to the owner. Both product pages render a "More
+  from [Category]" related-products section below, using `ProductCard`.
+  `components/ProductView.tsx` is now used **only** for the admin edit page's
+  `compact` live preview — it intentionally keeps the old single-panel,
+  click-to-toggle-everything behavior (no page navigation) since that's a
+  genuinely different, and still useful, need for someone actively editing a
+  product; it is not shown to customers anymore.
 - `components/QuoteForm.tsx` — the quote request form. Supports **multiple
   products per submission** (add/remove line items), each with its own
   Category → Product Type → Style/Finish cascade (from `catalog`), a free-text
@@ -274,15 +290,28 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   each with its own photo — added per-variant from the admin Product edit
   page (`VariantColorManager.tsx`, nested in `VariantManager.tsx`), picking
   from the product's category's managed Colors list (`ColorManager.tsx`,
-  nested in Category admin). On the product page, the Style/Finish picker
-  moved to the right-hand info column (first option pre-selected by default
-  whenever any variant has colors, so there's always something to browse) and
-  the Color picker sits under the photo where Style/Finish used to be
-  (nothing pre-selected — picking one swaps the photo). See the Style/Finish
-  variants bullet above for the full gallery-selection fallback chain and
+  nested in Category admin). (The in-place picker placement/pre-selection
+  behavior described here was superseded by the product-page restructuring
+  below — Style/Finish is now its own page, not a same-page toggle.) See
   `data/schema-variant-colors.sql` for the schema. Known gap: matches the
   quote-form limitation noted above — colors aren't wired into the quote
   form's free-text "preferred color" field, a separate future task.
+- ✅ Product detail page restructured into two pages so a shopper's photo
+  view is never ambiguous about what it's showing: the base product page now
+  shows only the product's own Featured/Detail photos plus a plain list of
+  Style/Finish links (no in-place photo swap anymore); clicking one opens its
+  own page (`/product/[slug]/[variant]`, three-level breadcrumb) whose photo
+  viewer is scoped strictly to that variant's own photo and its Colors, with
+  the generic Detail Photos demoted to a separate "Product Details Gallery"
+  section further down that page instead of sharing the same thumbnail
+  strip. New `ProductOverview.tsx`/`ProductVariantView.tsx` (public pages),
+  `PhotoLightbox.tsx`/`ProductBreadcrumb.tsx`/`VariantLinkPill.tsx` (shared
+  pieces) — see the product detail bullet above for the full shape.
+  `product_variants` gained an auto-generated `slug` column
+  (`data/schema-variant-slugs.sql`) so each variant can have its own URL; the
+  admin CRUD (`VariantManager.tsx` and friends) needed zero changes — this was
+  entirely a public-page presentation change. `ProductView.tsx` (the old
+  single-page component) now serves only the admin edit page's live preview.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a

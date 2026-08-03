@@ -20,7 +20,7 @@ export async function getCatalog(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
     .select(
-      "id, slug, name, catalogue_number, description, image_url, sort_order, is_active, products(id, slug, name, type, material, description, image_url, sort_order, product_types(is_active), product_variants(id, name, image_url, sort_order, variant_colors(id, image_url, sort_order, colors(name, is_active))), product_images(id, image_url, sort_order))"
+      "id, slug, name, catalogue_number, description, image_url, sort_order, is_active, products(id, slug, name, type, material, description, image_url, sort_order, product_types(is_active), product_variants(id, name, slug, image_url, sort_order, variant_colors(id, image_url, sort_order, colors(name, is_active))), product_images(id, image_url, sort_order))"
     )
     .eq("is_active", true)
     .order("sort_order");
@@ -59,6 +59,7 @@ export async function getCatalog(): Promise<Category[]> {
           product_variants: {
             id: string;
             name: string;
+            slug: string;
             image_url: string | null;
             sort_order: number;
             variant_colors: {
@@ -87,6 +88,7 @@ export async function getCatalog(): Promise<Category[]> {
             .map((v) => ({
               id: v.id,
               name: v.name,
+              slug: v.slug,
               imageUrl: v.image_url,
               colors: (v.variant_colors ?? [])
                 .slice()
@@ -122,4 +124,11 @@ export async function getProduct(
 ): Promise<{ category: Category; product: Product } | undefined> {
   const all = await getAllProducts();
   return all.find((p) => p.product.slug === slug);
+}
+
+export async function getProductVariant(productSlug: string, variantSlug: string) {
+  const found = await getProduct(productSlug);
+  const variant = found?.product.variants.find((v) => v.slug === variantSlug);
+  if (!found || !variant) return undefined;
+  return { ...found, variant };
 }

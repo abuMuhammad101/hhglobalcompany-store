@@ -52,10 +52,22 @@
           "type": "Long Wallets",
           "material": "Full-grain leather",
           "variants": [
-            { "name": "Plain" },
-            { "name": "Mild" },
-            { "name": "Unisex Mild" },
-            { "name": "Plated" }
+            {
+              "name": "Plain",
+              "slug": "plain"
+            },
+            {
+              "name": "Mild",
+              "slug": "mild"
+            },
+            {
+              "name": "Unisex Mild",
+              "slug": "unisex-mild"
+            },
+            {
+              "name": "Plated",
+              "slug": "plated"
+            }
           ],
           "description": "Full-length bifold wallet with multiple card slots and a bill compartment."
         },
@@ -65,9 +77,18 @@
           "type": "Ladies Clutches",
           "material": "Full-grain leather",
           "variants": [
-            { "name": "Small" },
-            { "name": "Regular" },
-            { "name": "Zipper" }
+            {
+              "name": "Small",
+              "slug": "small"
+            },
+            {
+              "name": "Regular",
+              "slug": "regular"
+            },
+            {
+              "name": "Zipper",
+              "slug": "zipper"
+            }
           ],
           "description": "Hand-finished leather clutch, available in three carry sizes."
         },
@@ -77,9 +98,18 @@
           "type": "Card Holder",
           "material": "Full-grain leather",
           "variants": [
-            { "name": "Plated" },
-            { "name": "Mild" },
-            { "name": "Plain" }
+            {
+              "name": "Plated",
+              "slug": "plated"
+            },
+            {
+              "name": "Mild",
+              "slug": "mild"
+            },
+            {
+              "name": "Plain",
+              "slug": "plain"
+            }
           ],
           "description": "Slim leather card holder, available with plated hardware or plain finish."
         },
@@ -89,11 +119,26 @@
           "type": "Mens Wallet",
           "material": "Full-grain leather",
           "variants": [
-            { "name": "3\" Dollarsize plain" },
-            { "name": "4\" Center Card" },
-            { "name": "Plated" },
-            { "name": "Texture" },
-            { "name": "Flap Mild" }
+            {
+              "name": "3\" Dollarsize plain",
+              "slug": "3-dollarsize-plain"
+            },
+            {
+              "name": "4\" Center Card",
+              "slug": "4-center-card"
+            },
+            {
+              "name": "Plated",
+              "slug": "plated"
+            },
+            {
+              "name": "Texture",
+              "slug": "texture"
+            },
+            {
+              "name": "Flap Mild",
+              "slug": "flap-mild"
+            }
           ],
           "description": "Our most requested wallet line, available in five distinct styles and finishes."
         },
@@ -103,7 +148,10 @@
           "type": "Mens Belt",
           "material": "Full-grain leather",
           "variants": [
-            { "name": "Mild" }
+            {
+              "name": "Mild",
+              "slug": "mild"
+            }
           ],
           "description": "Full-grain leather belt with a mild finish and reinforced stitching."
         }
