@@ -25,7 +25,7 @@ export default async function AdminCategoriesPage() {
   const { data: categories } = await supabase
     .from("categories")
     .select(
-      "id, slug, name, description, catalogue_number, image_url, sort_order, is_active, product_types(id, name, sort_order, is_active)"
+      "id, slug, name, description, catalogue_number, image_url, sort_order, is_active, product_types(id, name, sort_order, is_active), colors(id, name, sort_order, is_active)"
     )
     .order("sort_order");
 

@@ -3,19 +3,27 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "./ImageUploader";
+import VariantColorManager from "./VariantColorManager";
+
+type VariantColorRow = { id: string; image_url: string; sort_order: number; colorId: string; colorName: string };
 
 type Variant = {
   id: string;
   name: string;
   image_url: string | null;
   sort_order: number;
+  variant_colors?: VariantColorRow[];
 };
+
+type CategoryColor = { id: string; name: string; is_active: boolean };
 
 export default function VariantManager({
   productId,
+  categoryColors,
   initialVariants,
 }: {
   productId: string;
+  categoryColors: CategoryColor[];
   initialVariants: Variant[];
 }) {
   const router = useRouter();
@@ -68,7 +76,7 @@ export default function VariantManager({
       {initialVariants.length > 0 && (
         <ul className="mb-6 space-y-3">
           {initialVariants.map((v) => (
-            <VariantRow key={v.id} variant={v} onDelete={() => deleteVariant(v.id)} />
+            <VariantRow key={v.id} variant={v} categoryColors={categoryColors} onDelete={() => deleteVariant(v.id)} />
           ))}
         </ul>
       )}
@@ -99,7 +107,15 @@ export default function VariantManager({
   );
 }
 
-function VariantRow({ variant, onDelete }: { variant: Variant; onDelete: () => void }) {
+function VariantRow({
+  variant,
+  categoryColors,
+  onDelete,
+}: {
+  variant: Variant;
+  categoryColors: CategoryColor[];
+  onDelete: () => void;
+}) {
   const [name, setName] = useState(variant.name);
   const [imageUrl, setImageUrl] = useState<string | null>(variant.image_url);
   const [saving, setSaving] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -127,38 +143,52 @@ function VariantRow({ variant, onDelete }: { variant: Variant; onDelete: () => v
   }
 
   return (
-    <li className="flex items-start gap-4 border border-line rounded-lg p-3">
-      <ImageUploader
-        compact
-        value={imageUrl}
-        onChange={(url) => {
-          setImageUrl(url);
-          save({ imageUrl: url });
-        }}
-      />
-      <div className="flex-1 min-w-0">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={() => {
-            if (name.trim() && name !== variant.name) save({ name });
+    <li className="border border-line rounded-lg p-3">
+      <div className="flex items-start gap-4">
+        <ImageUploader
+          compact
+          value={imageUrl}
+          onChange={(url) => {
+            setImageUrl(url);
+            save({ imageUrl: url });
           }}
-          className="w-full text-sm font-medium border border-line rounded px-2.5 py-2 focus:border-ink focus:outline-none"
         />
-        <div className="text-[10px] mt-1 h-3">
-          {saving === "saving" && <span className="text-ink-faint">Saving...</span>}
-          {saving === "saved" && <span className="text-ink-faint">Saved</span>}
-          {saving === "error" && <span className="text-red-700">Couldn&apos;t save</span>}
+        <div className="flex-1 min-w-0">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={() => {
+              if (name.trim() && name !== variant.name) save({ name });
+            }}
+            className="w-full text-sm font-medium border border-line rounded px-2.5 py-2 focus:border-ink focus:outline-none"
+          />
+          <div className="text-[10px] mt-1 h-3">
+            {saving === "saving" && <span className="text-ink-faint">Saving...</span>}
+            {saving === "saved" && <span className="text-ink-faint">Saved</span>}
+            {saving === "error" && <span className="text-red-700">Couldn&apos;t save</span>}
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={busy}
+          className="text-xs text-ink-muted hover:text-red-700 disabled:opacity-50 mt-2 shrink-0"
+        >
+          {busy ? "Removing..." : "Remove"}
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={busy}
-        className="text-xs text-ink-muted hover:text-red-700 disabled:opacity-50 mt-2 shrink-0"
-      >
-        {busy ? "Removing..." : "Remove"}
-      </button>
+
+      <VariantColorManager
+        variantId={variant.id}
+        categoryColors={categoryColors}
+        initialColors={(variant.variant_colors ?? []).map((vc) => ({
+          id: vc.id,
+          image_url: vc.image_url,
+          sort_order: vc.sort_order,
+          colorId: vc.colorId,
+          colorName: vc.colorName,
+        }))}
+      />
     </li>
   );
 }

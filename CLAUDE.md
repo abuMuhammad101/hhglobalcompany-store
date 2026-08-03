@@ -86,8 +86,10 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   JSONB-per-group table for site copy), `schema-quote-items.sql` (`quote_items`
   table for multi-product quotes + a second, public `quote-uploads` storage
   bucket), `schema-category-hierarchy.sql` (`categories.is_active`, and a new
-  `product_types` table — see the Categories bullet below). Follow this pattern
-  for future schema changes too.
+  `product_types` table — see the Categories bullet below), `schema-variant-colors.sql`
+  (`colors` table, category-scoped, and `product_variants` gains a nested
+  `variant_colors` layer — see the Style/Finish variants bullet below). Follow
+  this pattern for future schema changes too.
 - Every product has **three independent photo surfaces**, each with its own
   admin manager component: a single **Featured Image** (`products.image_url`,
   `components/admin/FeaturedImageManager.tsx` → `PATCH /api/admin/products/[id]/image`)
@@ -96,9 +98,25 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   of additional spec/detail shots; and **Style/Finish variants**
   (`product_variants` table, `VariantManager.tsx`) — one photo per named
   option (e.g. Plain/Mild/Plated) that swaps the main photo when clicked, like
-  a color swatch. `ProductView.tsx` composes the customer-facing gallery as
-  `[active variant photo, ...detail photos]` when the product has variants, or
-  `[featured image, ...detail photos]` when it doesn't.
+  a color swatch. Each variant can optionally go one level deeper with
+  **Colors** (`variant_colors` table, `VariantColorManager.tsx`, nested inside
+  each `VariantManager` row) — e.g. a "Small" variant offering its own
+  Black/Brown/Blue photos. Colors themselves are a **category-managed
+  vocabulary** (`colors` table, `ColorManager.tsx`, nested in Category admin
+  alongside Product Types) since they're shared across a category's products,
+  while the variant level itself stays product-scoped free text. On the
+  product page, the variant ("Style / Finish") picker lives in the right-hand
+  info column with the **first variant pre-selected by default** whenever any
+  variant has colors attached (so there's always something to browse colors
+  under); products using only plain single-level variants keep the earlier
+  no-pre-selection behavior. The Color picker (when the active variant has
+  any) sits under the photo/thumbnails where Style/Finish used to be, with
+  **no color pre-selected** — picking one swaps the photo. `ProductView.tsx`
+  composes the customer-facing gallery as `[active color photo, ...detail
+  photos]` → `[active variant photo, ...detail photos]` → `[featured image,
+  ...detail photos]`, falling through in that order depending on what's
+  selected/available. Both the variant and color pickers have full lightbox
+  parity, matching the main view.
 - `lib/catalog.ts`, `lib/settings.ts`, `lib/hero.ts`, `lib/content.ts` — async data
   getters, each: try Supabase, fall back to a JSON file in `data/` on no
   connection or query error. `lib/content.ts` also exports `paragraphs()`, a
@@ -148,7 +166,9 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
     mirroring the category-level pattern. `products.product_type_id` is the real
     FK; `products.type` is kept as a synced plain-text mirror so every existing
     read path (`ProductCard`, `ProductView`, `QuoteForm`, breadcrumbs, JSON-LD)
-    needs zero changes. A disabled category or product type is fully hidden on
+    needs zero changes. Categories also manage a **Colors** list the same way
+    (`ColorManager.tsx`) — see the Style/Finish variants bullet above for how
+    products actually use these. A disabled category or product type is fully hidden on
     the public site (nav, homepage, quote form, and its pages 404) — `lib/catalog.ts`'s
     `getCatalog()` is the single place this filtering happens; admin routes query
     Supabase directly and always see everything, active or not. Category pages
@@ -249,6 +269,20 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   Type to a single product (`.find()`), so if two products ever share a type
   it won't let a customer disambiguate between them — pre-existing limitation,
   not changed by this work.
+- ✅ Added a second variant layer: Style/Finish variants (e.g. Small/Regular/
+  Large) can each optionally offer their own Colors (e.g. Black/Brown/Blue),
+  each with its own photo — added per-variant from the admin Product edit
+  page (`VariantColorManager.tsx`, nested in `VariantManager.tsx`), picking
+  from the product's category's managed Colors list (`ColorManager.tsx`,
+  nested in Category admin). On the product page, the Style/Finish picker
+  moved to the right-hand info column (first option pre-selected by default
+  whenever any variant has colors, so there's always something to browse) and
+  the Color picker sits under the photo where Style/Finish used to be
+  (nothing pre-selected — picking one swaps the photo). See the Style/Finish
+  variants bullet above for the full gallery-selection fallback chain and
+  `data/schema-variant-colors.sql` for the schema. Known gap: matches the
+  quote-form limitation noted above — colors aren't wired into the quote
+  form's free-text "preferred color" field, a separate future task.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a

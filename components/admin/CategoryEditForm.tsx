@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "./ImageUploader";
 import ProductTypeManager from "./ProductTypeManager";
+import ColorManager from "./ColorManager";
 import { Section, Field, SaveBar, inputClass, saveJson, type SavingState } from "./FormKit";
 import type { CategoryRow } from "./CategoryManager";
 
@@ -154,6 +155,10 @@ export default function CategoryEditForm({
 
       <div className="border-t border-line mt-8 pt-6">
         <ProductTypeManager categoryId={category.id} initialTypes={category.product_types} />
+      </div>
+
+      <div className="border-t border-line mt-8 pt-6">
+        <ColorManager categoryId={category.id} initialColors={category.colors} />
       </div>
     </div>
   );
