@@ -48,7 +48,14 @@ export default function ProductView({
   featuredImage,
   compact = false,
 }: Props) {
-  const [selected, setSelected] = useState<number | null>(null);
+  // Products using the two-layer hierarchy (variant -> color, e.g. Small ->
+  // Black/Brown) need *some* variant picked for the color tabs underneath to
+  // mean anything, so the first one is pre-selected. Plain single-layer
+  // products (no colors at all) keep the earlier fix: nothing pre-selected,
+  // page opens on the Featured Image.
+  const hasNestedColors = variants.some((v) => v.colors && v.colors.length > 0);
+  const [selected, setSelected] = useState<number | null>(hasNestedColors ? 0 : null);
+  const [selectedColor, setSelectedColor] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -64,14 +71,17 @@ export default function ProductView({
   }
 
   const hasVariants = variants.length > 0;
-  // No style/finish is pre-selected — the page opens on the plain Featured
-  // Image, and only swaps to a variant's own photo once the shopper actually
-  // picks one, the same way a color swatch works.
+  // No style/finish is pre-selected for plain products — the page opens on
+  // the Featured Image, and only swaps to a variant's own photo once the
+  // shopper actually picks one, the same way a color swatch works.
   const active = hasVariants && selected !== null ? variants[selected] : undefined;
+  const hasColors = Boolean(active?.colors && active.colors.length > 0);
+  const activeColor = hasColors && selectedColor !== null ? active!.colors![selectedColor] : undefined;
 
   const detailImages = images.map((img) => img.imageUrl);
-  const galleryImages: string[] = active?.imageUrl
-    ? [active.imageUrl, ...detailImages]
+  const mainPhotoUrl = activeColor?.imageUrl ?? active?.imageUrl;
+  const galleryImages: string[] = mainPhotoUrl
+    ? [mainPhotoUrl, ...detailImages]
     : ([featuredImage, ...detailImages].filter(Boolean) as string[]);
   const hasGallery = galleryImages.length > 1;
   const displayImageUrl = galleryImages[activeIndex] ?? null;
@@ -83,6 +93,7 @@ export default function ProductView({
 
   useEffect(() => {
     setActiveIndex(0);
+    setSelectedColor(null);
   }, [selected]);
 
   // Reset zoom whenever the lightbox opens or the photo changes, so a shopper
@@ -107,6 +118,8 @@ export default function ProductView({
     active ? `&variant=${encodeURIComponent(active.name)}` : ""
   }`;
 
+  const photoLabelSuffix = [active?.name, activeColor?.name].filter(Boolean).join(" — ");
+
   return (
     <div
       className={
@@ -124,7 +137,7 @@ export default function ProductView({
           <div
             tabIndex={0}
             role="img"
-            aria-label={`${productName}${active ? " — " + active.name : ""} photo${
+            aria-label={`${productName}${photoLabelSuffix ? " — " + photoLabelSuffix : ""} photo${
               hasGallery ? ` ${activeIndex + 1} of ${galleryImages.length}` : ""
             }`}
             onKeyDown={(e) => {
@@ -139,7 +152,7 @@ export default function ProductView({
                 : { background: fallbackGradients[(selected ?? 0) % fallbackGradients.length] }
             }
           >
-            {!displayImageUrl && `${productName}${active ? " — " + active.name : ""} photo`}
+            {!displayImageUrl && `${productName}${photoLabelSuffix ? " — " + photoLabelSuffix : ""} photo`}
           </div>
 
           {hasGallery && (
@@ -168,26 +181,26 @@ export default function ProductView({
           </div>
         )}
 
-        {hasVariants && (
+        {hasColors && (
           <div className="mt-5">
             <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
-              Style / Finish{active ? ` — ${active.name}` : ""}
+              Color{activeColor ? ` — ${activeColor.name}` : ""}
             </span>
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style or finish">
-              {variants.map((v, i) => (
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Color">
+              {active!.colors!.map((c, i) => (
                 <button
-                  key={v.id ?? v.name}
+                  key={c.id ?? c.name}
                   type="button"
                   role="radio"
-                  aria-checked={i === selected}
-                  onClick={() => setSelected(i)}
+                  aria-checked={i === selectedColor}
+                  onClick={() => setSelectedColor(i)}
                   className={`border px-3.5 py-1.5 text-sm rounded-full transition-colors ${
-                    i === selected
+                    i === selectedColor
                       ? "border-ink bg-ink text-on-dark"
                       : "border-line text-ink hover:border-ink-faint"
                   }`}
                 >
-                  {v.name}
+                  {c.name}
                 </button>
               ))}
             </div>
@@ -213,12 +226,39 @@ export default function ProductView({
           </span>
         )}
         <h1 className="text-[clamp(28px,4vw,44px)] font-medium tracking-tight mb-4 break-words">{productName}</h1>
-        <p className="text-ink-muted max-w-[50ch] mb-8 break-words">{description}</p>
+        <p className="text-ink-muted max-w-[50ch] mb-6 break-words">{description}</p>
+
+        {hasVariants && (
+          <div className="mb-8">
+            <span className="font-mono-ui text-[11px] uppercase tracking-wider text-ink-muted mb-2 block">
+              Style / Finish{active ? ` — ${active.name}` : ""}
+            </span>
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style or finish">
+              {variants.map((v, i) => (
+                <button
+                  key={v.id ?? v.name}
+                  type="button"
+                  role="radio"
+                  aria-checked={i === selected}
+                  onClick={() => setSelected(i)}
+                  className={`border px-3.5 py-1.5 text-sm rounded-full transition-colors ${
+                    i === selected
+                      ? "border-ink bg-ink text-on-dark"
+                      : "border-line text-ink hover:border-ink-faint"
+                  }`}
+                >
+                  {v.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="border border-line rounded-2xl p-6 mb-8 grid grid-cols-2 gap-x-6 gap-y-4">
           <DetailRow label="Category" value={categoryName} />
           <DetailRow label="Product Type" value={productType} />
           {active && <DetailRow label="Style / Finish" value={active.name} />}
+          {activeColor && <DetailRow label="Color" value={activeColor.name} />}
           {material && <DetailRow label="Material" value={material} />}
         </div>
 
@@ -321,7 +361,7 @@ export default function ProductView({
               )}
 
               {hasVariants && (
-                <div className="flex flex-wrap gap-2 justify-center" role="radiogroup" aria-label="Style or finish">
+                <div className="flex flex-wrap gap-2 justify-center mb-3" role="radiogroup" aria-label="Style or finish">
                   {variants.map((v, i) => (
                     <button
                       key={v.id ?? v.name}
@@ -336,6 +376,27 @@ export default function ProductView({
                       }`}
                     >
                       {v.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {hasColors && (
+                <div className="flex flex-wrap gap-2 justify-center" role="radiogroup" aria-label="Color">
+                  {active!.colors!.map((c, i) => (
+                    <button
+                      key={c.id ?? c.name}
+                      type="button"
+                      role="radio"
+                      aria-checked={i === selectedColor}
+                      onClick={() => setSelectedColor(i)}
+                      className={`border px-3.5 py-1.5 text-sm rounded-full transition-colors ${
+                        i === selectedColor
+                          ? "border-white bg-white text-ink"
+                          : "border-white/30 text-white hover:border-white/60"
+                      }`}
+                    >
+                      {c.name}
                     </button>
                   ))}
                 </div>

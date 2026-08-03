@@ -1,7 +1,14 @@
+export type VariantColor = {
+  id?: string;
+  name: string;
+  imageUrl: string;
+};
+
 export type Variant = {
   id?: string;
   name: string;
   imageUrl?: string | null;
+  colors?: VariantColor[];
 };
 
 export type ProductImage = {

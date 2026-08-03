@@ -29,11 +29,14 @@ export default async function EditProductPage({
   }
 
   const [{ data: categories }, { data: product }] = await Promise.all([
-    supabase.from("categories").select("id, name, product_types(id, name, is_active)").order("sort_order"),
+    supabase
+      .from("categories")
+      .select("id, name, product_types(id, name, is_active), colors(id, name, is_active)")
+      .order("sort_order"),
     supabase
       .from("products")
       .select(
-        "id, category_id, name, slug, type, product_type_id, material, description, image_url, categories(name), product_variants(id, name, image_url, sort_order), product_images(id, image_url, sort_order)"
+        "id, category_id, name, slug, type, product_type_id, material, description, image_url, categories(name), product_variants(id, name, image_url, sort_order, variant_colors(id, image_url, sort_order, colors(id, name))), product_images(id, image_url, sort_order)"
       )
       .eq("id", id)
       .single(),
@@ -47,9 +50,37 @@ export default async function EditProductPage({
     productTypes: c.product_types ?? [],
   }));
 
+  const categoryColors = (categories ?? []).find((c) => c.id === product.category_id)?.colors ?? [];
+
   const variants = (product.product_variants ?? [])
     .slice()
-    .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order);
+    .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
+    .map(
+      (v: {
+        id: string;
+        name: string;
+        image_url: string | null;
+        sort_order: number;
+        variant_colors: {
+          id: string;
+          image_url: string;
+          sort_order: number;
+          colors: { id: string; name: string } | { id: string; name: string }[] | null;
+        }[];
+      }) => ({
+        ...v,
+        variant_colors: (v.variant_colors ?? []).map((vc) => {
+          const color = Array.isArray(vc.colors) ? vc.colors[0] : vc.colors;
+          return {
+            id: vc.id,
+            image_url: vc.image_url,
+            sort_order: vc.sort_order,
+            colorId: color?.id ?? "",
+            colorName: color?.name ?? "",
+          };
+        }),
+      })
+    );
 
   const images = (product.product_images ?? [])
     .slice()
@@ -87,12 +118,8 @@ export default async function EditProductPage({
           <div className="border-t border-line mt-10 pt-10">
             <VariantManager
               productId={product.id}
-              initialVariants={variants.map((v: { id: string; name: string; image_url: string | null; sort_order: number }) => ({
-                id: v.id,
-                name: v.name,
-                image_url: v.image_url,
-                sort_order: v.sort_order,
-              }))}
+              categoryColors={categoryColors}
+              initialVariants={variants}
             />
           </div>
         </div>
@@ -113,11 +140,19 @@ export default async function EditProductPage({
                 id: img.id,
                 imageUrl: img.image_url,
               }))}
-              variants={variants.map((v: { id: string; name: string; image_url: string | null }) => ({
-                id: v.id,
-                name: v.name,
-                imageUrl: v.image_url,
-              }))}
+              variants={variants.map(
+                (v: {
+                  id: string;
+                  name: string;
+                  image_url: string | null;
+                  variant_colors: { id: string; image_url: string; colorName: string }[];
+                }) => ({
+                  id: v.id,
+                  name: v.name,
+                  imageUrl: v.image_url,
+                  colors: v.variant_colors.map((vc) => ({ id: vc.id, name: vc.colorName, imageUrl: vc.image_url })),
+                })
+              )}
             />
           </div>
         </div>

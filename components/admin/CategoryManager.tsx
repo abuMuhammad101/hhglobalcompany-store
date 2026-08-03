@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import CategoryEditForm from "./CategoryEditForm";
 
 type ProductType = { id: string; name: string; sort_order: number; is_active: boolean };
+type Color = { id: string; name: string; sort_order: number; is_active: boolean };
 
 export type CategoryRow = {
   id: string;
@@ -16,6 +17,7 @@ export type CategoryRow = {
   sort_order: number;
   is_active: boolean;
   product_types: ProductType[];
+  colors: Color[];
 };
 
 function slugify(value: string) {
@@ -57,7 +59,7 @@ export default function CategoryManager({ initialCategories }: { initialCategori
       if (!res.ok || !body.ok) throw new Error(body.error || "Couldn't add that category.");
       setCategories((cur) => [
         ...cur,
-        { ...body.category, is_active: body.category.is_active ?? true, product_types: [] },
+        { ...body.category, is_active: body.category.is_active ?? true, product_types: [], colors: [] },
       ]);
       setName("");
       setSlug("");
