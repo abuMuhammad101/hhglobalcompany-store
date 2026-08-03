@@ -20,7 +20,7 @@ export async function getCatalog(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
     .select(
-      "id, slug, name, catalogue_number, description, image_url, sort_order, is_active, products(id, slug, name, type, material, description, image_url, sort_order, product_types(is_active), product_variants(id, name, slug, image_url, sort_order, variant_colors(id, image_url, sort_order, colors(name, is_active))), product_images(id, image_url, sort_order))"
+      "id, slug, name, catalogue_number, description, image_url, sort_order, is_active, products(id, slug, name, type, material, description, image_url, sort_order, product_types(is_active), product_variants(id, name, slug, image_url, sort_order, variant_colors(id, image_url, sort_order, colors(name, is_active), variant_color_images(id, image_url, sort_order))), product_images(id, image_url, sort_order))"
     )
     .eq("is_active", true)
     .order("sort_order");
@@ -67,6 +67,7 @@ export async function getCatalog(): Promise<Category[]> {
               image_url: string;
               sort_order: number;
               colors: { name: string; is_active: boolean } | { name: string; is_active: boolean }[] | null;
+              variant_color_images: { id: string; image_url: string; sort_order: number }[];
             }[];
           }[];
           product_images: { id: string; image_url: string; sort_order: number }[];
@@ -99,7 +100,15 @@ export async function getCatalog(): Promise<Category[]> {
                 .sort((a, b) => a.sort_order - b.sort_order)
                 .map((vc) => {
                   const color = Array.isArray(vc.colors) ? vc.colors[0] : vc.colors;
-                  return { id: vc.id, name: color?.name ?? "", imageUrl: vc.image_url };
+                  return {
+                    id: vc.id,
+                    name: color?.name ?? "",
+                    imageUrl: vc.image_url,
+                    images: (vc.variant_color_images ?? [])
+                      .slice()
+                      .sort((a, b) => a.sort_order - b.sort_order)
+                      .map((img) => ({ id: img.id, imageUrl: img.image_url })),
+                  };
                 }),
             })),
         })

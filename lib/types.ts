@@ -2,6 +2,9 @@ export type VariantColor = {
   id?: string;
   name: string;
   imageUrl: string;
+  /** Extra photos for this color beyond its cover photo (`imageUrl`), the
+   * same relationship a product's Featured Image has to its Detail Photos. */
+  images?: ProductImage[];
 };
 
 export type Variant = {

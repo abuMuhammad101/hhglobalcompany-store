@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import ImageUploader from "./ImageUploader";
 import VariantColorManager from "./VariantColorManager";
 
-type VariantColorRow = { id: string; image_url: string; sort_order: number; colorId: string; colorName: string };
+type VariantColorImageRow = { id: string; image_url: string; sort_order: number };
+type VariantColorRow = {
+  id: string;
+  image_url: string;
+  sort_order: number;
+  colorId: string;
+  colorName: string;
+  images?: VariantColorImageRow[];
+};
 
 type Variant = {
   id: string;
@@ -187,6 +195,7 @@ function VariantRow({
           sort_order: vc.sort_order,
           colorId: vc.colorId,
           colorName: vc.colorName,
+          images: vc.images ?? [],
         }))}
       />
     </li>
