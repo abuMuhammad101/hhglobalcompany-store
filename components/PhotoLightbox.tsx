@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 8;
-const ZOOM_STEP = 1;
+const ZOOM_STEP = 0.25;
 const ZOOM_DOUBLE_CLICK = 4;
 
 type Props = {
@@ -22,13 +22,14 @@ type Props = {
  * Full-screen photo viewer shared by every image gallery on the product
  * pages — true edge-to-edge fullscreen (the photo fills the whole viewport,
  * scaled up to the max space available rather than boxed into a fixed
- * column), zoom in/out (up to 800%, enough to inspect material texture),
- * keyboard arrow nav, a thumbnail strip, and an optional slot for picker
- * rows — both rendered as an overlay across the bottom of the photo rather
- * than pushing it up and shrinking it. Each gallery on the page (the
- * variant/color viewer, the separate Product Details Gallery) opens its own
- * instance scoped to just its own `images` array, so browsing one never
- * wraps into the other's photos.
+ * column), zoom in/out in 25% steps up to 800% (enough to inspect material
+ * texture) via the +/- buttons, double-click, or the mouse/trackpad scroll
+ * wheel while hovering the photo, keyboard arrow nav, a thumbnail strip, and
+ * an optional slot for picker rows — both rendered as an overlay across the
+ * bottom of the photo rather than pushing it up and shrinking it. Each
+ * gallery on the page (the variant/color viewer, the separate Product
+ * Details Gallery) opens its own instance scoped to just its own `images`
+ * array, so browsing one never wraps into the other's photos.
  */
 export default function PhotoLightbox({ images, activeIndex, onIndexChange, onClose, extraControls }: Props) {
   const [zoom, setZoom] = useState(1);
@@ -40,6 +41,11 @@ export default function PhotoLightbox({ images, activeIndex, onIndexChange, onCl
   }
   function zoomOut() {
     setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
+  }
+  function onWheel(e: React.WheelEvent) {
+    e.preventDefault();
+    if (e.deltaY < 0) zoomIn();
+    else if (e.deltaY > 0) zoomOut();
   }
 
   function goTo(direction: -1 | 1) {
@@ -75,6 +81,7 @@ export default function PhotoLightbox({ images, activeIndex, onIndexChange, onCl
       <div
         className="absolute inset-0 overflow-auto flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
+        onWheel={onWheel}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
