@@ -135,12 +135,16 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   navigates to `app/product/[slug]/[variant]/page.tsx` (via
   `components/ProductVariantView.tsx`): a dedicated page for that one
   option, breadcrumb now three levels deep (`Category / Product Type /
-  Variant`), whose photo viewer is scoped *only* to that variant's own photo
-  plus each of its Colors' photos (color chips filter it further, exactly
-  like the old in-place picker did) — the generic Detail Photos never mix
-  into this viewer. They get their own clearly-labelled **"Product Details
-  Gallery"** section further down the same page instead, with its own
-  independent lightbox, so browsing one set never spills into the other's.
+  Variant`), whose photo viewer is scoped *only* to the currently selected
+  color's own photos (color chips filter it), never another color's, never
+  the product's generic Detail Photos. Further down, a **"Product Details
+  Gallery"** section collects every photo across *all* of this variant's
+  colors in one place — each color's cover photo plus any extras it has —
+  a browse-everything view independent of whichever color is picked up top,
+  with its own independent lightbox so browsing one set never spills into
+  the other's. The product's generic Detail Photos (spec/detail shots not
+  tied to any color) live on the base product page instead, not duplicated
+  here.
   Both pages share `components/PhotoLightbox.tsx` (the extracted zoom/
   keyboard-nav/thumbnail-strip modal, with an `extraControls` slot for the
   color-pill row), `components/ProductBreadcrumb.tsx`, and
@@ -311,9 +315,11 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   Style/Finish links (no in-place photo swap anymore); clicking one opens its
   own page (`/product/[slug]/[variant]`, three-level breadcrumb) whose photo
   viewer is scoped strictly to that variant's own photo and its Colors, with
-  the generic Detail Photos demoted to a separate "Product Details Gallery"
-  section further down that page instead of sharing the same thumbnail
-  strip. New `ProductOverview.tsx`/`ProductVariantView.tsx` (public pages),
+  a separate "Product Details Gallery" section further down that page instead
+  of sharing the same thumbnail strip (this section's source was later
+  changed from the product's generic Detail Photos to this variant's own
+  colors — see the later status entry below). New
+  `ProductOverview.tsx`/`ProductVariantView.tsx` (public pages),
   `PhotoLightbox.tsx`/`ProductBreadcrumb.tsx`/`VariantLinkPill.tsx` (shared
   pieces) — see the product detail bullet above for the full shape.
   `product_variants` gained an auto-generated `slug` column
@@ -335,6 +341,15 @@ Editorial/manufacturing-studio aesthetic (reference: an "essentialgoods" studio 
   strip — picking "Brown" never shows a Black or Blue thumbnail. A color with
   only its cover photo (no extras added) shows no thumbnail strip at all,
   same as a single-photo product always has.
+- ✅ The variant page's "Product Details Gallery" section now aggregates
+  every photo across *all* of that variant's colors (each color's cover +
+  its extras) instead of the product's generic Detail Photos — previously
+  it just repeated the same generic shots already visible on the base
+  product page; now it shows something genuinely new (every color option in
+  one place), while the base product page still owns the generic Detail
+  Photos. `ProductVariantView.tsx` no longer takes an `images` prop for this
+  (computed from `activeVariant.colors` instead); the section is hidden
+  entirely for a variant with no colors, same as before.
 - ⬜ Resend email notifications not yet configured — quotes only visible in
   `/admin/quotes`, no email alert yet
 - ⬜ Terms page numbers (MOQ, lead times, thresholds) were entered from a

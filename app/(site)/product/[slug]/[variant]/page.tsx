@@ -53,7 +53,6 @@ export default async function ProductVariantPage({
           material={product.material}
           variants={product.variants}
           activeVariant={activeVariant}
-          images={product.images}
         />
       </Reveal>
 

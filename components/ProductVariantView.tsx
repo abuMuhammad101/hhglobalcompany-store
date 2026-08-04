@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ProductImage, Variant } from "@/lib/types";
+import type { Variant } from "@/lib/types";
 import { fallbackGradients } from "@/lib/fallbackGradients";
 import Button from "@/components/Button";
 import ProductBreadcrumb from "@/components/ProductBreadcrumb";
@@ -19,7 +19,6 @@ type Props = {
   material?: string;
   variants: Variant[];
   activeVariant: Variant;
-  images: ProductImage[];
 };
 
 /**
@@ -27,10 +26,13 @@ type Props = {
  * option. The top viewer shows only the *currently selected* photo set: the
  * variant's own default photo until a color is picked, then that color's own
  * photos only (its cover photo plus any extra photos added for it) — never
- * another color's photos, and never the product's generic Detail Photos,
- * which get their own clearly-labelled section below instead ("Product
- * Details Gallery"), with an independent lightbox so browsing one set never
- * wraps into the other's.
+ * another color's photos. Further down, "Product Details Gallery" collects
+ * every photo across *all* of this variant's colors in one place (each
+ * color's cover + its extras) — a browse-everything view, independent of
+ * whichever color is currently selected up top, with its own lightbox so
+ * browsing one set never wraps into the other's. The product's generic
+ * Detail Photos (spec/detail shots not tied to any color) live on the base
+ * product page instead, not duplicated here.
  */
 export default function ProductVariantView({
   categoryName,
@@ -42,7 +44,6 @@ export default function ProductVariantView({
   material,
   variants,
   activeVariant,
-  images,
 }: Props) {
   const hasColors = Boolean(activeVariant.colors && activeVariant.colors.length > 0);
   const [selectedColorName, setSelectedColorName] = useState<string | null>(null);
@@ -68,7 +69,10 @@ export default function ProductVariantView({
     setActiveIndex((i) => (i + direction + currentPhotos.length) % currentPhotos.length);
   }
 
-  const detailImages = images.map((img) => img.imageUrl);
+  const detailImages = (activeVariant.colors ?? []).flatMap((c) => [
+    c.imageUrl,
+    ...(c.images ?? []).map((img) => img.imageUrl),
+  ]);
   const [detailIndex, setDetailIndex] = useState(0);
   const [detailLightboxOpen, setDetailLightboxOpen] = useState(false);
 
